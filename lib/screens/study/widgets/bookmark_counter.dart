@@ -8,6 +8,7 @@ class BookmarkCounter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //todo: fix ref
     return StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection("Universities")
@@ -47,10 +48,10 @@ class BookmarkCounter extends StatelessWidget {
               margin: const EdgeInsets.only(right: 8, top: 16, bottom: 16),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).dividerColor,
                   // shape: BoxShape.circle,
                   // border: Border.all(color: Colors.white),
-                  borderRadius: BorderRadius.circular(3)),
+                  borderRadius: BorderRadius.circular(4)),
               child: Text(
                 data.toString(),
                 style: Theme.of(context)

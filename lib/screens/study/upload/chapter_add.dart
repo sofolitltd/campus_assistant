@@ -1,14 +1,14 @@
-import 'package:campus_assistant/models/course_model.dart';
-import 'package:campus_assistant/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:multi_select_flutter/util/multi_select_list_type.dart';
 
-import '/constraints.dart';
 import '/database_service.dart';
 import '/models/course_chapter_model.dart';
+import '/models/course_model.dart';
+import '/models/user_model.dart';
+import '/utils/constants.dart';
 
 class AddChapter extends StatefulWidget {
   const AddChapter({
@@ -36,6 +36,12 @@ class _AddChapterState extends State<AddChapter> {
   List<String>? _selectedBatchList;
 
   final TextEditingController _chapterTitleController = TextEditingController();
+
+  @override
+  void initState() {
+    _selectedBatchList = kBatchList;
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -141,9 +147,13 @@ class _AddChapterState extends State<AddChapter> {
                       border: Border.all(color: Colors.black38),
                       borderRadius: BorderRadius.circular(4),
                     ),
+                    selectedColor: Colors.blueAccent.shade100,
+                    selectedItemsTextStyle:
+                        const TextStyle(color: Colors.black),
                     title: const Text('Accessible Batch List'),
                     buttonText: const Text('Batch List'),
                     buttonIcon: const Icon(Icons.arrow_drop_down),
+                    initialValue: _selectedBatchList,
                     items:
                         kBatchList.map((e) => MultiSelectItem(e, e)).toList(),
                     listType: MultiSelectListType.CHIP,

@@ -1,5 +1,3 @@
-import 'package:campus_assistant/screens/study/widgets/bookmark_counter.dart';
-import 'package:campus_assistant/screens/study/widgets/content_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +7,8 @@ import '/models/course_content_model.dart';
 import '/models/course_model.dart';
 import '/models/user_model.dart';
 import '/screens/study/upload/content_add.dart';
+import '/screens/study/widgets/bookmark_counter.dart';
+import '/screens/study/widgets/content_card.dart';
 
 class CourseNotesDetails extends StatelessWidget {
   const CourseNotesDetails({
@@ -73,6 +73,7 @@ class CourseNotesDetails extends StatelessWidget {
               .collection(courseType)
               .where('batchList', arrayContains: userModel.batch)
               .where('lessonNo', isEqualTo: courseChapterModel.chapterNo)
+              .where('status', isEqualTo: userModel.status)
               .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
@@ -99,6 +100,7 @@ class CourseNotesDetails extends StatelessWidget {
                 //model
                 CourseContentModel courseContentModel =
                     CourseContentModel.fromJson(data[index]);
+                print(courseContentModel.status);
 
                 var contentId = data[index].id;
                 //

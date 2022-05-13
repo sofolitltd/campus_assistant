@@ -21,65 +21,81 @@ class CourseList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: DatabaseService.refUniversities
-          .doc(userModel.university)
-          .collection('Departments')
-          .doc(userModel.department)
-          .collection('Study')
-          .doc('Courses')
-          .collection(selectedYear)
-          .where('courseCategory', isEqualTo: courseCategory)
-          .where('batchList', arrayContains: userModel.batch)
-          .orderBy('courseCode')
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return const Center(child: Text('Something wrong'));
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return SizedBox(
-              height: MediaQuery.of(context).size.height * .4,
-              child: const Center(child: CircularProgressIndicator()));
-        }
-
-        var data = snapshot.data!.docs;
+    return Stack(
+      children: [
         //
-        if (data.isNotEmpty) {
-          return Column(
-            children: [
-              //
-              Headline(title: courseCategory),
+        StreamBuilder<QuerySnapshot>(
+          stream: DatabaseService.refUniversities
+              .doc(userModel.university)
+              .collection('Departments')
+              .doc(userModel.department)
+              .collection('Study')
+              .doc('Courses')
+              .collection(selectedYear)
+              .where('courseCategory', isEqualTo: courseCategory)
+              .where('batchList', arrayContains: userModel.batch)
+              .orderBy('courseCode')
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return const Center(child: Text('Something wrong'));
+            }
 
-              //
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: data.length,
-                separatorBuilder: (BuildContext context, int index) =>
-                    const SizedBox(height: 12),
-                padding: const EdgeInsets.all(12),
-                itemBuilder: (context, index) {
-                  //model
-                  CourseModel courseModel = CourseModel.fromJson(data[index]);
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return SizedBox(
+                  height: MediaQuery.of(context).size.height * .4,
+                  child: const Center(child: CircularProgressIndicator()));
+            }
+
+            var data = snapshot.data!.docs;
+
+            //
+            if (data.isNotEmpty) {
+              return Column(
+                children: [
+                  //
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: 8,
+                      left: 8,
+                    ),
+                    child: Headline(title: courseCategory),
+                  ),
 
                   //
-                  return CourseCard(
-                    userModel: userModel,
-                    selectedYear: selectedYear,
-                    id: data[index].id,
-                    courseModel: courseModel,
-                  );
-                },
-              ),
-            ],
-          );
-        }
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: data.length,
+                    separatorBuilder: (BuildContext context, int index) =>
+                        const SizedBox(height: 16),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 8,
+                    ),
+                    itemBuilder: (context, index) {
+                      //model
+                      CourseModel courseModel =
+                          CourseModel.fromJson(data[index]);
 
-        //
-        return Container();
-      },
+                      //
+                      return CourseCard(
+                        userModel: userModel,
+                        selectedYear: selectedYear,
+                        id: data[index].id,
+                        courseModel: courseModel,
+                      );
+                    },
+                  ),
+                ],
+              );
+            }
+
+            //
+            return Container();
+          },
+        ),
+      ],
     );
   }
 }

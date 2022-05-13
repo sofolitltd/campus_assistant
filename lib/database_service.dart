@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:uuid/uuid.dart';
 
 import 'models/course_chapter_model.dart';
 import 'models/course_content_model.dart';
@@ -57,45 +58,64 @@ class DatabaseService {
     required String id,
     required String courseType,
     required CourseContentModel courseContentModel,
-  }) {
+  }) async {
     //
-    refUniversities
+    var ref = refUniversities
         .doc(university)
         .collection('Departments')
         .doc(department)
-        .collection('Study')
+        .collection('Study');
+
+    var contentId = const Uuid().v4();
+
+    //
+    await ref
         .doc('Courses')
         .collection(year)
         .doc(id)
         .collection(courseType)
-        .doc()
+        .doc(contentId)
         .set(courseContentModel.toJson());
+
+    // add to library
+    if (courseType == 'Books') {
+      await ref
+          .doc('Library')
+          .collection('Books')
+          .doc(contentId)
+          .set(courseContentModel.toJson());
+    }
   }
 
-//reference
-// final CollectionReference refStudy =
-//     ref.collection('psychology').doc('information').collection('teachers');
+  //
+  //
+  static deleteCourseContent({
+    required university,
+    required department,
+    required year,
+    required String id,
+    required String courseType,
+    required String contentId,
+  }) async {
+    //
+    var ref = refUniversities
+        .doc(university)
+        .collection('Departments')
+        .doc(department)
+        .collection('Study');
 
-// //add teacher info
-// Future addTeacher() async {
-//   TeacherModel teacher = TeacherModel(
-//     serial: '15',
-//     present: true,
-//     name: '',
-//     post: '',
-//     phd: '',
-//     mobile: '',
-//     email: '',
-//     imageUrl: '',
-//     interest: '',
-//     publications: '',
-//   );
-//
-//   return await _reference.doc('15').set(teacher.toJson());
-// }
-//
-// //get teachers info
-// Stream<QuerySnapshot> get getTeachersInfo {
-//   return _reference.snapshots();
-// }
+    //
+    await ref
+        .doc('Courses')
+        .collection(year)
+        .doc(id)
+        .collection(courseType)
+        .doc(contentId)
+        .delete();
+
+    // add to library
+    if (courseType == 'Books') {
+      await ref.doc('Library').collection('Books').doc(contentId).delete();
+    }
+  }
 }

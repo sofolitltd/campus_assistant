@@ -1,9 +1,9 @@
-import 'package:campus_assistant/models/user_model.dart';
-import 'package:campus_assistant/screens/study/widgets/bookmark_counter.dart';
 import 'package:flutter/material.dart';
 
-import '/constraints.dart';
 import '/models/course_model.dart';
+import '/models/user_model.dart';
+import '/screens/study/widgets/bookmark_counter.dart';
+import '../../utils/constants.dart';
 import 'course3_notes_chapters.dart';
 import 'course5_types_details.dart';
 

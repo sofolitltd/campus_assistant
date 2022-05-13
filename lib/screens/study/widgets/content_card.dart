@@ -22,9 +22,14 @@ class ContentCard extends StatefulWidget {
 
 class _ContentCardState extends State<ContentCard> {
   bool _isLoading = false;
+  double? _downloadProgress;
+  CancelToken cancelToken = CancelToken();
 
   @override
   Widget build(BuildContext context) {
+    String fileName =
+        '${widget.courseContentModel.contentTitle}_${widget.courseContentModel.contentSubtitle}_${widget.courseContentModel.courseCode}_${widget.contentId.toString().substring(0, 5)}.pdf';
+
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -35,8 +40,8 @@ class _ContentCardState extends State<ContentCard> {
           //
           final appStorage =
               Directory('/storage/emulated/0/Download/Campus Assistant');
-          final file = File(
-              '${appStorage.path}/${widget.courseContentModel.contentTitle}.pdf');
+
+          final file = File('${appStorage.path}/$fileName');
 
           //
           if (file.existsSync()) {
@@ -72,8 +77,7 @@ class _ContentCardState extends State<ContentCard> {
                               //
                               await downloadAndOpenFile(
                                   url: widget.courseContentModel.fileUrl,
-                                  fileName:
-                                      '${widget.courseContentModel.contentTitle}.pdf');
+                                  fileName: fileName);
 
                               setState(() => _isLoading = false);
                             },
@@ -166,8 +170,8 @@ class _ContentCardState extends State<ContentCard> {
                     ],
                   ),
 
-                  //
-                  if (downloadFileChecker(widget.courseContentModel))
+                  // download button
+                  if (downloadFileChecker(fileName: fileName))
                     const Icon(
                       Icons.check_circle_outline,
                       color: Colors.green,
@@ -181,8 +185,7 @@ class _ContentCardState extends State<ContentCard> {
 
                               //
                               await downloadFile(
-                                  widget.courseContentModel.fileUrl,
-                                  '${widget.courseContentModel.contentTitle}.pdf');
+                                  widget.courseContentModel.fileUrl, fileName);
 
                               //
                               setState(() => _isLoading = false);
@@ -193,20 +196,30 @@ class _ContentCardState extends State<ContentCard> {
                               size: 30,
                             ),
                           )
-                        : Stack(
-                            alignment: Alignment.center,
-                            children: const [
-                              Icon(
-                                Icons.downloading_rounded,
-                                color: Colors.grey,
-                                size: 24,
-                              ),
-                              SizedBox(
-                                height: 32,
-                                width: 32,
-                                child: CircularProgressIndicator(),
-                              ),
-                            ],
+                        : GestureDetector(
+                            onTap: () async {
+                              //
+
+                              // cancelToken.cancel();
+                            },
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                const Icon(
+                                  // Icons.clear,
+                                  Icons.downloading_rounded,
+                                  color: Colors.grey,
+                                  size: 24,
+                                ),
+                                SizedBox(
+                                  height: 32,
+                                  width: 32,
+                                  child: CircularProgressIndicator(
+                                    value: _downloadProgress,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                 ],
               ),
@@ -222,62 +235,67 @@ class _ContentCardState extends State<ContentCard> {
       ),
     );
   }
-}
 
 // downloadFileChecker
-downloadFileChecker(courseContentModel) {
-  final appStorage = Directory('/storage/emulated/0/Download/Campus Assistant');
-  final file =
-      File('${appStorage.path}/${courseContentModel.contentTitle}.pdf');
+  downloadFileChecker({required String fileName}) {
+    final appStorage =
+        Directory('/storage/emulated/0/Download/Campus Assistant');
 
-  if (file.existsSync()) {
-    return true;
+    final file = File('${appStorage.path}/$fileName');
+
+    if (file.existsSync()) {
+      return true;
+    }
+    return false;
   }
-  return false;
-}
 
 // downloadAndOpenFile
-downloadAndOpenFile({required String url, required String fileName}) async {
-  // download file
-  final file = await downloadFile(url, fileName);
-
-  //
-  if (file == null) return;
-  print('path:  $file');
-  OpenFile.open(file.path);
-}
-
-// download file
-Future<File?> downloadFile(String url, String fileName) async {
-  // file location
-  // final appStorage = await getApplicationDocumentsDirectory();
-  final appStorage =
-      await Directory('/storage/emulated/0/Download/Campus Assistant')
-          .create(recursive: true);
-  final file = File('${appStorage.path}/$fileName');
-
-  // download file with dio
-  try {
-    final response = await Dio().get(
-      url,
-      options: Options(
-        responseType: ResponseType.bytes,
-        followRedirects: false,
-        receiveTimeout: 0,
-      ),
-    );
-
-    // store on file system
-    final ref = file.openSync(mode: FileMode.write);
-    ref.writeFromSync(response.data);
-    await ref.close();
+  downloadAndOpenFile({required String url, required String fileName}) async {
+    // download file
+    final file = await downloadFile(url, fileName);
 
     //
-    Fluttertoast.showToast(msg: 'File save on /Download/Campus Assistant');
+    if (file == null) return;
+    print('path:  $file');
+    OpenFile.open(file.path);
+  }
 
-    return file;
-  } catch (e) {
-    print('dio error: $e');
-    return null;
+// download file
+  Future<File?> downloadFile(String url, String fileName) async {
+    // file location
+    // final appStorage = await getApplicationDocumentsDirectory();
+    final appStorage =
+        await Directory('/storage/emulated/0/Download/Campus Assistant')
+            .create(recursive: true);
+    final file = File('${appStorage.path}/$fileName');
+
+    // download file with dio
+    try {
+      final response = await Dio().get(url,
+          // cancelToken: cancelToken,
+          options: Options(
+            responseType: ResponseType.bytes,
+            followRedirects: false,
+            receiveTimeout: 0,
+          ), onReceiveProgress: (received, total) {
+        double progress = received / total;
+        setState(() {
+          _downloadProgress = progress;
+        });
+      });
+
+      // store on file system
+      final ref = file.openSync(mode: FileMode.write);
+      ref.writeFromSync(response.data);
+      await ref.close();
+
+      //
+      Fluttertoast.showToast(msg: 'File save on /Download/Campus Assistant');
+
+      return file;
+    } catch (e) {
+      print('dio error: $e');
+      return null;
+    }
   }
 }

@@ -15,6 +15,7 @@ class BookmarkButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //todo: fix ref
     return StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection("Universities")
@@ -38,6 +39,7 @@ class BookmarkButton extends StatelessWidget {
           if (snapshot.data!.exists) {
             return IconButton(
                 onPressed: () async {
+                  //todo: fix ref
                   await FirebaseFirestore.instance
                       .collection("Universities")
                       .doc("University of Chittagong")
@@ -58,6 +60,7 @@ class BookmarkButton extends StatelessWidget {
 
           return IconButton(
               onPressed: () async {
+                //todo: fix ref
                 FirebaseFirestore.instance
                     .collection("Universities")
                     .doc("University of Chittagong")

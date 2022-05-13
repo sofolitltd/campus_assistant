@@ -4,39 +4,61 @@ class UserModel {
   UserModel({
     required this.university,
     required this.department,
-    required this.year,
     required this.batch,
+    required this.id,
+    required this.session,
+    required this.name,
     required this.email,
+    required this.phone,
+    required this.blood,
+    required this.hall,
     required this.status,
+    required this.imageUrl,
   });
 
   final String university;
   final String department;
-  final String year;
   final String batch;
+  final String id;
+  final String session;
+  final String name;
   final String email;
+  final String phone;
+  final String blood;
+  final String hall;
   final String status;
+  final String imageUrl;
 
   // get
   UserModel.fromJson(DocumentSnapshot json)
       : this(
           university: json['university']! as String,
           department: json['department']! as String,
-          year: json['year']! as String,
           batch: json['batch']! as String,
+          id: json['id']! as String,
+          session: json['session']! as String,
+          name: json['name']! as String,
           email: json['email']! as String,
+          phone: json['phone']! as String,
+          blood: json['blood']! as String,
+          hall: json['hall']! as String,
           status: json['status']! as String,
+          imageUrl: json['imageUrl']! as String,
         );
 
   // up
-  toJson() {
-    return UserModel(
-      university: university,
-      department: department,
-      year: year,
-      batch: batch,
-      email: email,
-      status: status,
-    );
-  }
+  Map<String, dynamic> toJson() => {
+        'university': university,
+        'department': department,
+        'batch': batch,
+        'id': id,
+        'session': session,
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'blood': blood,
+        'hall': hall,
+        'status': status,
+        'imageUrl': imageUrl,
+      };
 }

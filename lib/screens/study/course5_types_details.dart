@@ -56,6 +56,7 @@ class CourseTypesDetails extends StatelessWidget {
               .doc(id)
               .collection(courseType)
               .where('batchList', arrayContains: userModel.batch)
+              .where('status', whereIn: ['Basic', userModel.status])
               // .where('lessonNo', isEqualTo: courseType.lessonNo)
               .snapshots(),
           builder: (context, snapshot) {
@@ -85,10 +86,23 @@ class CourseTypesDetails extends StatelessWidget {
                     CourseContentModel.fromJson(data[index]);
 
                 var contentId = data[index].id;
+
                 //
-                return ContentCard(
-                    contentId: contentId,
-                    courseContentModel: courseContentModel);
+                return GestureDetector(
+                  onLongPress: () {
+                    //todo: delete content
+                    // DatabaseService.deleteCourseContent(
+                    //     university: userModel.university,
+                    //     department: userModel.department,
+                    //     year: selectedYear,
+                    //     id: id,
+                    //     courseType: courseType,
+                    //     contentId: contentId);
+                  },
+                  child: ContentCard(
+                      contentId: contentId,
+                      courseContentModel: courseContentModel),
+                );
               },
             );
           }),

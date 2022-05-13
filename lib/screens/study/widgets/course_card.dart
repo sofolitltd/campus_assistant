@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:campus_assistant/models/user_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '/models/course_model.dart';
+import '/models/user_model.dart';
 import '../course2_type_screen.dart';
 import 'course_info.dart';
 
@@ -78,8 +78,7 @@ class CourseCard extends StatelessWidget {
                       ),
                       image: const DecorationImage(
                         fit: BoxFit.cover,
-                        image: NetworkImage(
-                            'https://icon2.cleanpng.com/20180605/ijl/kisspng-computer-icons-image-file-formats-no-image-5b16ff0d2414b5.0787389815282337411478.jpg'),
+                        image: AssetImage('assets/images/placeholder.jpg'),
                         // fit: BoxFit.,
                       ),
                     ),

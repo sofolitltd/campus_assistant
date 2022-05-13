@@ -1,4 +1,4 @@
-import 'package:campus_assistant/constraints.dart';
+import 'package:campus_assistant/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
@@ -33,6 +33,12 @@ class _AddCourseState extends State<AddCourse> {
       TextEditingController();
 
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    _selectedBatchList = kBatchList;
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -188,6 +194,7 @@ class _AddCourseState extends State<AddCourse> {
                     title: const Text('Accessible Batch List'),
                     buttonText: const Text('Batch List'),
                     buttonIcon: const Icon(Icons.arrow_drop_down),
+                    initialValue: _selectedBatchList,
                     items:
                         kBatchList.map((e) => MultiSelectItem(e, e)).toList(),
                     listType: MultiSelectListType.CHIP,

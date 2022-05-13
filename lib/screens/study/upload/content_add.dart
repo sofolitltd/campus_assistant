@@ -9,11 +9,11 @@ import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:multi_select_flutter/util/multi_select_list_type.dart';
 
-import '/constraints.dart';
 import '/database_service.dart';
 import '/models/course_content_model.dart';
 import '/models/course_model.dart';
 import '/models/user_model.dart';
+import '../../../utils/constants.dart';
 
 ///Study/2nd Year/Practical Course/Psy 207/Notes/Lessons/02/sxusycT5qFMLYx91ec1Z
 class AddContent extends StatefulWidget {
@@ -41,6 +41,7 @@ class AddContent extends StatefulWidget {
 class _AddContentState extends State<AddContent> {
   final GlobalKey<FormState> _formState = GlobalKey<FormState>();
   List<String>? _selectedBatchList;
+  String _selectedStatus = 'Basic';
   final TextEditingController _contentTitleController = TextEditingController();
   final TextEditingController _contentSubtitleController =
       TextEditingController();
@@ -48,6 +49,12 @@ class _AddContentState extends State<AddContent> {
   String? fileName;
   File? selectedFile;
   UploadTask? task;
+
+  @override
+  void initState() {
+    _selectedBatchList = kBatchList;
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -59,6 +66,7 @@ class _AddContentState extends State<AddContent> {
 
   @override
   Widget build(BuildContext context) {
+    print(_selectedBatchList);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -80,7 +88,7 @@ class _AddContentState extends State<AddContent> {
 
           const SizedBox(height: 16),
 
-          //
+          // choose file
           Container(
             decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey),
@@ -165,19 +173,56 @@ class _AddContentState extends State<AddContent> {
                     border: Border.all(color: Colors.black38),
                     borderRadius: BorderRadius.circular(4),
                   ),
+                  selectedColor: Colors.blueAccent.shade100,
+                  selectedItemsTextStyle: const TextStyle(color: Colors.black),
                   title: const Text('Accessible Batch List'),
                   buttonText: const Text('Batch List'),
                   buttonIcon: const Icon(Icons.arrow_drop_down),
+                  initialValue: _selectedBatchList,
                   items: kBatchList.map((e) => MultiSelectItem(e, e)).toList(),
                   listType: MultiSelectListType.CHIP,
                   onConfirm: (List<String> values) {
                     setState(() {
                       _selectedBatchList = values;
+                      print('selected: $_selectedBatchList');
                     });
                   },
                   validator: (values) => (values == null || values.isEmpty)
                       ? "Select some batch"
                       : null,
+                ),
+
+                const SizedBox(height: 8),
+                //
+                Row(
+                  children: [
+                    Expanded(
+                      child: RadioListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Basic'),
+                          value: 'Basic',
+                          groupValue: _selectedStatus,
+                          onChanged: (String? val) {
+                            setState(() {
+                              _selectedStatus = val!;
+                            });
+                          }),
+                    ),
+
+                    // pro
+                    Expanded(
+                      child: RadioListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Pro'),
+                          value: 'Pro',
+                          groupValue: _selectedStatus,
+                          onChanged: (String? val) {
+                            setState(() {
+                              _selectedStatus = val!;
+                            });
+                          }),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -196,11 +241,8 @@ class _AddContentState extends State<AddContent> {
                     Fluttertoast.showToast(msg: 'No File Selected !');
                   } else if (_formState.currentState!.validate()) {
                     // fire storage
-                    var fileName = _contentTitleController.text +
-                        '_${DateTime.now().microsecond}' +
-                        '_' +
-                        _contentSubtitleController.text +
-                        '.pdf';
+                    var fileName =
+                        '${_contentTitleController.text}_${DateTime.now().microsecond}_${_contentSubtitleController.text}.pdf';
 
                     //
                     task = putFileToFireStorage(
@@ -219,7 +261,7 @@ class _AddContentState extends State<AddContent> {
                     await uploadFileToFireStore(fileUrl: downloadedUrl);
 
                     //
-                    Navigator.pop(context);
+                    Navigator.pop(this.context);
                   }
                 },
                 label: const Text('Upload File')),
@@ -366,6 +408,7 @@ class _AddContentState extends State<AddContent> {
       courseCode: widget.courseModel.courseCode,
       contentType: widget.courseType,
       lessonNo: widget.courseType == 'Notes' ? widget.chapterNo! : 1,
+      status: _selectedStatus,
       batchList: _selectedBatchList!,
       contentTitle: _contentTitleController.text.trim(),
       contentSubtitle: _contentSubtitleController.text.trim(),

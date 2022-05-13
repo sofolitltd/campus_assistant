@@ -4,6 +4,7 @@ class CourseContentModel {
   final String courseCode;
   final String contentType;
   final int lessonNo;
+  final String status;
   final List<String> batchList;
   final String contentTitle;
   final String contentSubtitle;
@@ -15,6 +16,7 @@ class CourseContentModel {
     required this.courseCode,
     required this.contentType,
     required this.lessonNo,
+    required this.status,
     required this.batchList,
     required this.contentTitle,
     required this.contentSubtitle,
@@ -29,6 +31,7 @@ class CourseContentModel {
           courseCode: json['courseCode']! as String,
           contentType: json['contentType']! as String,
           lessonNo: json['lessonNo']! as int,
+          status: json['status']! as String,
           batchList: (json['batchList']! as List).cast<String>(),
           contentTitle: json['contentTitle']! as String,
           contentSubtitle: json['contentSubtitle']! as String,
@@ -43,6 +46,7 @@ class CourseContentModel {
       'courseCode': courseCode,
       'contentType': contentType,
       'lessonNo': lessonNo,
+      'status': status,
       'batchList': batchList,
       'contentTitle': contentTitle,
       'contentSubtitle': contentSubtitle,
