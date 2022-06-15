@@ -257,8 +257,8 @@ class _AddStudentState extends State<AddStudent> {
                       _selectedBloodGroup = value;
                     });
                   },
-                  validator: (value) =>
-                      value == null ? "Select your blood group" : null,
+                  // validator: (value) =>
+                  //     value == null ? "Select your blood group" : null,
                   items: kBloodGroup.map((String val) {
                     return DropdownMenuItem(
                       value: val,
@@ -293,7 +293,9 @@ class _AddStudentState extends State<AddStudent> {
                               email: _emailController.text.isEmpty
                                   ? ''
                                   : _emailController.text.trim(),
-                              blood: _selectedBloodGroup.toString(),
+                              blood: _selectedBloodGroup == null
+                                  ? ''
+                                  : _selectedBloodGroup!,
                               imageUrl: '',
                               token: createToken(
                                   batch: widget.selectedBatch, id: id),
