@@ -1,28 +1,28 @@
-import 'package:campus_assistant/providers/user_provider.dart';
-import 'package:campus_assistant/screens/auth/login.dart';
-import 'package:campus_assistant/screens/auth/signup1.dart';
-import 'package:campus_assistant/screens/auth/wrapper.dart';
-import 'package:campus_assistant/screens/dashboard/dashboard.dart';
-import 'package:campus_assistant/screens/home/about/about_screen.dart';
-import 'package:campus_assistant/screens/home/home.dart';
-import 'package:campus_assistant/screens/home/office/office_screen.dart';
-import 'package:campus_assistant/screens/home/student/all_batch_list.dart';
-import 'package:campus_assistant/screens/home/student/student_screen.dart';
-import 'package:campus_assistant/screens/home/teacher/teacher_details_screen.dart';
-import 'package:campus_assistant/screens/home/teacher/teacher_screen.dart';
-import 'package:campus_assistant/screens/profile/profile.dart';
-import 'package:campus_assistant/screens/study/course1_screen.dart';
-import 'package:campus_assistant/utils/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '/providers/user_provider.dart';
+import '/screens/auth/login.dart';
+import '/screens/auth/signup1.dart';
 import '/screens/auth/welcome.dart';
+import '/screens/auth/wrapper.dart';
+import '/screens/dashboard/dashboard.dart';
+import '/screens/home/about/about_screen.dart';
+import '/screens/home/home.dart';
+import '/screens/home/office/office_screen.dart';
+import '/screens/home/student/all_batch_list.dart';
+import '/screens/home/student/student_screen.dart';
+import '/screens/home/teacher/teacher_screen.dart';
+import '/screens/profile/profile.dart';
+import '/screens/study/course1_screen.dart';
+import '/utils/theme.dart';
 import 'firebase_options.dart';
 import 'utils/constants.dart';
 
 void main() async {
+  //
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -48,6 +48,7 @@ void main() async {
   );
 }
 
+//
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -78,7 +79,7 @@ Map<String, Widget Function(BuildContext)> routes = {
   HomeScreen.routeName: (context) => const HomeScreen(),
 
   TeacherScreen.routeName: (context) => const TeacherScreen(),
-  TeacherDetailsScreen.routeName: (context) => const TeacherDetailsScreen(),
+  // TeacherDetailsScreen.routeName: (context) => const TeacherDetailsScreen(),
 
   StudentScreen.routeName: (context) => const StudentScreen(),
 

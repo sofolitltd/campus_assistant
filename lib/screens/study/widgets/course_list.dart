@@ -13,11 +13,13 @@ class CourseList extends StatelessWidget {
     required this.userModel,
     required this.selectedYear,
     required this.courseCategory,
+    required this.selectedSession,
   }) : super(key: key);
 
   final UserModel userModel;
   final String selectedYear;
   final String courseCategory;
+  final String selectedSession;
 
   @override
   Widget build(BuildContext context) {
@@ -29,11 +31,10 @@ class CourseList extends StatelessWidget {
               .doc(userModel.university)
               .collection('Departments')
               .doc(userModel.department)
-              .collection('Study')
-              .doc('Courses')
-              .collection(selectedYear)
+              .collection('Courses')
+              .where('courseYear', isEqualTo: selectedYear)
               .where('courseCategory', isEqualTo: courseCategory)
-              .where('batchList', arrayContains: userModel.batch)
+              .where('sessionList', arrayContains: selectedSession)
               .orderBy('courseCode')
               .snapshots(),
           builder: (context, snapshot) {
@@ -56,7 +57,7 @@ class CourseList extends StatelessWidget {
                   //
                   Padding(
                     padding: const EdgeInsets.only(
-                      top: 8,
+                      top: 16,
                       left: 8,
                     ),
                     child: Headline(title: courseCategory),
@@ -70,7 +71,7 @@ class CourseList extends StatelessWidget {
                     separatorBuilder: (BuildContext context, int index) =>
                         const SizedBox(height: 16),
                     padding: const EdgeInsets.symmetric(
-                      vertical: 8,
+                      vertical: 16,
                       horizontal: 8,
                     ),
                     itemBuilder: (context, index) {
@@ -84,6 +85,7 @@ class CourseList extends StatelessWidget {
                         selectedYear: selectedYear,
                         id: data[index].id,
                         courseModel: courseModel,
+                        selectedSession: selectedSession,
                       );
                     },
                   ),

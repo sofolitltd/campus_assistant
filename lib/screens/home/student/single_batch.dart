@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '/models/user_model.dart';
 import '../../../models/student_model.dart';
+import '../../../utils/constants.dart';
 
 class SingleBatchScreen extends StatelessWidget {
   final UserModel userModel;
@@ -30,19 +31,24 @@ class SingleBatchScreen extends StatelessWidget {
 
     return Scaffold(
       //
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          //
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => AddStudent(
-                        userModel: userModel,
-                        selectedBatch: selectedBatch,
-                      )));
-        },
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: userModel.role[UserRole.admin.name]
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 24),
+              child: FloatingActionButton(
+                onPressed: () {
+                  //
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AddStudent(
+                                userModel: userModel,
+                                selectedBatch: selectedBatch,
+                              )));
+                },
+                child: const Icon(Icons.add),
+              ),
+            )
+          : null,
 
       //
       body: StreamBuilder<QuerySnapshot>(
@@ -96,7 +102,10 @@ class SingleBatchScreen extends StatelessWidget {
                             child: Text(
                               studentCounter,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 15),
+                              style: const TextStyle(
+                                // fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ],
@@ -110,6 +119,7 @@ class SingleBatchScreen extends StatelessWidget {
                       padding: const EdgeInsets.only(
                         left: 16,
                         right: 16,
+                        bottom: 16,
                       ),
                       itemCount: data.length,
                       separatorBuilder: (BuildContext context, int index) =>

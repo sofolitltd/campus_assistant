@@ -1,4 +1,5 @@
-import 'package:campus_assistant/models/course_content_model.dart';
+import 'package:campus_assistant/models/content_model.dart';
+import 'package:campus_assistant/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -7,78 +8,69 @@ class BookmarkButton extends StatelessWidget {
   const BookmarkButton({
     Key? key,
     required this.contentId,
+    required this.userModel,
     required this.courseContentModel,
   }) : super(key: key);
 
   final String contentId;
-  final CourseContentModel courseContentModel;
+  final UserModel userModel;
+  final ContentModel courseContentModel;
 
   @override
   Widget build(BuildContext context) {
     //todo: fix ref
-    return StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection("Universities")
-            .doc("University of Chittagong")
-            .collection('Departments')
-            .doc('Department of Psychology')
-            .collection('Study')
-            .doc('Bookmarks')
-            .collection('asifreyad1@gmail.com')
-            .doc(contentId)
-            .snapshots(),
+    var ref = FirebaseFirestore.instance
+        .collection("Universities")
+        .doc(userModel.university)
+        .collection('Departments')
+        .doc(userModel.department)
+        .collection('Bookmarks')
+        .doc(userModel.email)
+        .collection('Contents');
+
+    //
+    return StreamBuilder<QuerySnapshot>(
+        stream: ref.snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return IconButton(
                 onPressed: () {},
                 icon: const Icon(
-                  Icons.bookmark_added,
+                  Icons.favorite_border_outlined,
                 ));
           }
 
-          if (snapshot.data!.exists) {
-            return IconButton(
-                onPressed: () async {
-                  //todo: fix ref
-                  await FirebaseFirestore.instance
-                      .collection("Universities")
-                      .doc("University of Chittagong")
-                      .collection('Departments')
-                      .doc('Department of Psychology')
-                      .collection('Study')
-                      .doc('Bookmarks')
-                      .collection('asifreyad1@gmail.com')
-                      .doc(contentId)
-                      .delete()
-                      .then((value) {
-                    // Fluttertoast.cancel();
-                    Fluttertoast.showToast(msg: 'Remove Bookmark');
-                  });
-                },
-                icon: const Icon(Icons.bookmark_remove, color: Colors.red));
+          var id = '';
+          for (var element in snapshot.data!.docs) {
+            id = element.id;
+            if (id == contentId) {
+              return IconButton(
+                  onPressed: () async {
+                    //todo: fix ref
+                    await ref.doc(contentId).delete().then((value) {
+                      Fluttertoast.cancel();
+                      Fluttertoast.showToast(msg: 'Remove Bookmark');
+                    });
+                  },
+                  icon: const Icon(Icons.favorite_outlined, color: Colors.red));
+            }
           }
 
+          //
           return IconButton(
               onPressed: () async {
-                //todo: fix ref
-                FirebaseFirestore.instance
-                    .collection("Universities")
-                    .doc("University of Chittagong")
-                    .collection('Departments')
-                    .doc('Department of Psychology')
-                    .collection('Study')
-                    .doc('Bookmarks')
-                    .collection('asifreyad1@gmail.com')
-                    .doc(contentId)
-                    .set(courseContentModel.toJson())
-                    .then((value) {
+                ref.doc(contentId).set({
+                  'userEmail': userModel.email,
+                  'courseType': courseContentModel.contentType,
+                  'contentId': contentId,
+                }).then((value) {
                   //
-                  // Fluttertoast.cancel();
+                  Fluttertoast.cancel();
                   Fluttertoast.showToast(msg: 'Add Bookmark');
                 });
               },
               icon: const Icon(
-                Icons.bookmark_added,
+                Icons.favorite_border_outlined,
               ));
         });
   }

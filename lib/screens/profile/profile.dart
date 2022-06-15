@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '/models/user_model.dart';
 import '../auth/login.dart';
+import 'edit_profile.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -19,6 +21,22 @@ class _ProfileScreenState extends State<ProfileScreen>
   //
   @override
   bool get wantKeepAlive => true;
+
+  @override
+  initState() {
+    getRef();
+    super.initState();
+  }
+
+  getRef() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Obtain shared preferences.
+
+    var un = prefs.getString('university');
+    prefs.getString('department');
+    print('share: $un');
+    return un;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +172,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 children: [
                                   //
                                   Text(
-                                    'blood (${userModel.blood})',
+                                    'Blood group (${userModel.blood})',
                                     style:
                                         Theme.of(context).textTheme.bodyMedium,
                                   ),
@@ -219,7 +237,14 @@ class _ProfileScreenState extends State<ProfileScreen>
                           //
                           Expanded(
                               child: OutlinedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => EditProfile(
+                                                  userModel: userModel,
+                                                )));
+                                  },
                                   child: const Text('Edit Profile'))),
 
                           const SizedBox(width: 12),
@@ -231,6 +256,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                     await FirebaseAuth.instance.signOut();
 
                                     //
+                                    if (!mounted) return;
                                     Navigator.pushAndRemoveUntil(
                                         context,
                                         MaterialPageRoute(
@@ -316,6 +342,25 @@ class _ProfileScreenState extends State<ProfileScreen>
                     //
                     Text(
                       userModel.phone,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium!
+                          .copyWith(fontWeight: FontWeight.w600),
+                    ),
+
+                    const Divider(),
+
+                    //
+                    Text(
+                      'Hall',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+
+                    const SizedBox(height: 2),
+
+                    //
+                    Text(
+                      userModel.hall,
                       style: Theme.of(context)
                           .textTheme
                           .titleMedium!

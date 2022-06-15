@@ -1,30 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class CourseChapterModel {
+class ChapterModel {
+  final String courseCode;
   final int chapterNo;
   final String chapterTitle;
-  final List<String> batchList;
+  final List<dynamic> sessionList;
 
-  CourseChapterModel({
+  ChapterModel({
+    required this.courseCode,
     required this.chapterNo,
     required this.chapterTitle,
-    required this.batchList,
+    required this.sessionList,
   });
 
   // fetch
-  CourseChapterModel.fromJson(DocumentSnapshot json)
+  ChapterModel.fromJson(DocumentSnapshot json)
       : this(
+          courseCode: json['courseCode']! as String,
           chapterNo: json['chapterNo']! as int,
           chapterTitle: json['chapterTitle']! as String,
-          batchList: (json['batchList']! as List).cast<String>(),
+          sessionList: (json['sessionList']! as List).cast<String>(),
         );
 
   // upload
   Map<String, dynamic> toJson() {
     return {
+      'courseCode': courseCode,
       'chapterNo': chapterNo,
       'chapterTitle': chapterTitle,
-      'batchList': batchList,
+      'sessionList': sessionList,
     };
   }
 }

@@ -19,6 +19,7 @@ class Categories extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var screenSize = MediaQuery.of(context).size;
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Column(
@@ -36,11 +37,12 @@ class Categories extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
             physics: const NeverScrollableScrollPhysics(),
             primary: false,
-            childAspectRatio: .8,
-            crossAxisCount: 2,
+            childAspectRatio: screenSize.width > 1200 ? 1 : .8,
+            crossAxisCount: screenSize.width > 1200 ? 4 : 2,
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,
             children: [
+              // dept
               CategoryCard(
                 title: 'About\nDepartment',
                 color: kCardColor1,

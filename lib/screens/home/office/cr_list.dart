@@ -22,13 +22,17 @@ class CrList extends StatelessWidget {
         .collection('Cr');
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (_) => AddCr(userModel: userModel)));
-        },
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: userModel.role[UserRole.admin.name]
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => AddCr(userModel: userModel)));
+              },
+              child: const Icon(Icons.add),
+            )
+          : null,
 
       //
       body: ListView(

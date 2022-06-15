@@ -1,11 +1,13 @@
 import 'package:campus_assistant/models/user_model.dart';
+import 'package:campus_assistant/screens/study/upload/chapter_edit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '/database_service.dart';
-import '/models/course_chapter_model.dart';
+import '/models/chapter_model.dart';
 import '/models/course_model.dart';
 import '/screens/study/upload/chapter_add.dart';
+import '../../utils/constants.dart';
 import 'course4_notes_details.dart';
 
 class CourseNotesChapters extends StatelessWidget {
@@ -16,6 +18,7 @@ class CourseNotesChapters extends StatelessWidget {
     required this.id,
     required this.courseType,
     required this.courseModel,
+    required this.selectedSession,
   }) : super(key: key);
 
   final UserModel userModel;
@@ -23,39 +26,39 @@ class CourseNotesChapters extends StatelessWidget {
   final String id;
   final String courseType;
   final CourseModel courseModel;
+  final String selectedSession;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       //
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // add chapter
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => AddChapter(
-                        userModel: userModel,
-                        selectedYear: selectedYear,
-                        id: id,
-                        courseModel: courseModel,
-                        courseType: courseType,
-                      )));
-        },
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: (userModel.role[UserRole.admin.name])
+          ? FloatingActionButton(
+              onPressed: () {
+                // add chapter
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => AddChapter(
+                              userModel: userModel,
+                              selectedYear: selectedYear,
+                              id: id,
+                              courseModel: courseModel,
+                              courseType: courseType,
+                            )));
+              },
+              child: const Icon(Icons.add),
+            )
+          : null,
 
       body: StreamBuilder<QuerySnapshot>(
           stream: DatabaseService.refUniversities
               .doc(userModel.university)
               .collection('Departments')
               .doc(userModel.department)
-              .collection('Study')
-              .doc('Courses')
-              .collection(selectedYear)
-              .doc(id)
               .collection('Chapters')
-              .where('batchList', arrayContains: userModel.batch)
+              .where('courseCode', isEqualTo: courseModel.courseCode)
+              .where('sessionList', arrayContains: selectedSession)
               .orderBy('chapterNo')
               .snapshots(),
           builder: (context, snapshot) {
@@ -78,12 +81,11 @@ class CourseNotesChapters extends StatelessWidget {
               shrinkWrap: true,
               itemCount: data.length,
               separatorBuilder: (BuildContext context, int index) =>
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
               padding: const EdgeInsets.all(12),
               itemBuilder: (context, index) {
                 //model
-                CourseChapterModel courseChapterModel =
-                    CourseChapterModel.fromJson(data[index]);
+                ChapterModel chapterModel = ChapterModel.fromJson(data[index]);
                 //
                 return Card(
                   elevation: 4,
@@ -91,6 +93,24 @@ class CourseNotesChapters extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                   child: ListTile(
+                    onLongPress: userModel.role[UserRole.admin.name]
+                        ? () {
+                            //todo: later
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditChapter(
+                                  userModel: userModel,
+                                  selectedYear: selectedYear,
+                                  id: data[index].id,
+                                  courseModel: courseModel,
+                                  chapterModel: chapterModel,
+                                  courseType: courseType,
+                                ),
+                              ),
+                            );
+                          }
+                        : null,
                     onTap: () {
                       // notes details
                       Navigator.push(
@@ -102,7 +122,7 @@ class CourseNotesChapters extends StatelessWidget {
                             id: id,
                             courseType: courseType,
                             courseModel: courseModel,
-                            courseChapterModel: courseChapterModel,
+                            courseChapterModel: chapterModel,
                           ),
                         ),
                       );
@@ -110,30 +130,33 @@ class CourseNotesChapters extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    contentPadding: const EdgeInsets.all(12),
+                    contentPadding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                    horizontalTitleGap: 12,
                     leading: Container(
-                      height: 56,
-                      width: 56,
+                      height: 48,
+                      width: 48,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         color: Colors.amber.shade200,
                       ),
                       alignment: Alignment.center,
-                      child: Text('${courseChapterModel.chapterNo}',
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 32,
-                          )),
+                      child: Text('${chapterModel.chapterNo}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall!
+                              .copyWith(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              )),
                     ),
                     title: Text(
-                      courseChapterModel.chapterTitle,
+                      chapterModel.chapterTitle,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                            // color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                   ),
                 );

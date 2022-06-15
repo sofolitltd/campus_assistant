@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class StuffModel {
+class StaffModel {
   final String name;
   final String post;
   final String phone;
   final int serial;
   final String imageUrl;
 
-  StuffModel({
+  StaffModel({
     required this.name,
     required this.post,
     required this.phone,
@@ -16,7 +16,7 @@ class StuffModel {
   });
 
   //fetch
-  StuffModel.fromJson(DocumentSnapshot json)
+  StaffModel.fromJson(DocumentSnapshot json)
       : this(
           name: json['name']! as String,
           post: json['post']! as String,

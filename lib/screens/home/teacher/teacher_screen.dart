@@ -1,11 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campus_assistant/screens/home/teacher/teacher_add.dart';
+import 'package:campus_assistant/screens/home/teacher/teachers_edit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../models/teacher_model.dart';
 import '../../../models/user_model.dart';
+import '../../../utils/constants.dart';
 import '../teacher/teacher_details_screen.dart';
 
 class TeacherScreen extends StatelessWidget {
@@ -59,20 +61,25 @@ class TeacherListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool p = userModel.role[UserRole.admin.name];
+    print('admin: ${p}');
+
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          //
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    TeacherAdd(userModel: userModel, present: isPresent),
-              ));
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Add'),
-      ),
+      floatingActionButton: userModel.role[UserRole.admin.name]
+          ? FloatingActionButton(
+              onPressed: () {
+                //
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        TeacherAdd(userModel: userModel, present: isPresent),
+                  ),
+                );
+              },
+              child: const Icon(Icons.add),
+            )
+          : null,
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('Universities')
@@ -99,7 +106,7 @@ class TeacherListView extends StatelessWidget {
                   radius: const Radius.circular(8),
                   interactive: true,
                   child: ListView.separated(
-                    shrinkWrap: true,
+                    // shrinkWrap: true,
                     itemCount: data.length,
                     padding: const EdgeInsets.symmetric(
                         vertical: 16, horizontal: 16),
@@ -111,79 +118,87 @@ class TeacherListView extends StatelessWidget {
                           TeacherModel.formJson(data[index]);
 
                       //
-                      return Stack(
-                        alignment: Alignment.topRight,
-                        children: [
-                          //
-                          InkWell(
-                            borderRadius: BorderRadius.circular(12),
-                            onTap: () => Navigator.pushNamed(
-                              context,
-                              TeacherDetailsScreen.routeName,
-                              arguments: teacherModel,
-                            ),
-                            child: Card(
-                              margin: EdgeInsets.zero,
-                              elevation: 4,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8)),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 16),
-                                child: Row(
-                                  children: [
-                                    Hero(
-                                      tag: teacherModel.name,
-                                      child: CachedNetworkImage(
-                                        imageUrl: teacherModel.imageUrl,
-                                        fadeInDuration:
-                                            const Duration(milliseconds: 500),
-                                        imageBuilder:
-                                            (context, imageProvider) =>
-                                                CircleAvatar(
-                                          backgroundImage: imageProvider,
-                                          radius: 32,
-                                        ),
-                                        progressIndicatorBuilder: (context, url,
-                                                downloadProgress) =>
-                                            const CircleAvatar(
-                                                radius: 32,
-                                                backgroundImage: AssetImage(
-                                                    'assets/images/pp_placeholder.png'),
-                                                child:
-                                                    CupertinoActivityIndicator()),
-                                        errorWidget: (context, url, error) =>
-                                            const CircleAvatar(
-                                                radius: 32,
-                                                backgroundImage: AssetImage(
-                                                    'assets/images/pp_placeholder.png')),
-                                      ),
+                      return InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onLongPress: userModel.role[UserRole.admin.name]
+                            ? () {
+                                //
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TeacherEdit(
+                                      userModel: userModel,
+                                      teacherModel: teacherModel,
                                     ),
-                                    const SizedBox(width: 16),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(teacherModel.name,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold)),
-                                        const SizedBox(height: 8),
-                                        Text(teacherModel.post,
-                                            style: const TextStyle()),
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              ),
+                                  ),
+                                );
+                              }
+                            : null,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TeacherDetailsScreen(
+                              teacherModel: teacherModel,
+                              userModel: userModel,
                             ),
                           ),
-
-                          //
-                          Text(teacherModel.serial.toString()),
-                        ],
+                        ),
+                        child: Card(
+                          margin: EdgeInsets.zero,
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 16),
+                            child: Row(
+                              children: [
+                                //
+                                Hero(
+                                  tag: teacherModel.name,
+                                  child: CachedNetworkImage(
+                                    imageUrl: teacherModel.imageUrl,
+                                    fadeInDuration:
+                                        const Duration(milliseconds: 500),
+                                    imageBuilder: (context, imageProvider) =>
+                                        CircleAvatar(
+                                      backgroundImage: imageProvider,
+                                      radius: 32,
+                                    ),
+                                    progressIndicatorBuilder: (context, url,
+                                            downloadProgress) =>
+                                        const CircleAvatar(
+                                            radius: 32,
+                                            backgroundImage: AssetImage(
+                                                'assets/images/pp_placeholder.png'),
+                                            child:
+                                                CupertinoActivityIndicator()),
+                                    errorWidget: (context, url, error) =>
+                                        const CircleAvatar(
+                                            radius: 32,
+                                            backgroundImage: AssetImage(
+                                                'assets/images/pp_placeholder.png')),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(teacherModel.name,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold)),
+                                    const SizedBox(height: 8),
+                                    Text(teacherModel.post,
+                                        style: const TextStyle()),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
                       );
                     },
                   ),

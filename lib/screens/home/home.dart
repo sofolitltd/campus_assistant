@@ -26,16 +26,15 @@ class _HomeScreenState extends State<HomeScreen>
 
   //
   getUser() async {
-    var currentUser = FirebaseAuth.instance.currentUser;
+    var currentUser = FirebaseAuth.instance.currentUser!.uid;
     await FirebaseFirestore.instance
         .collection('Users')
-        .where('email', isEqualTo: currentUser!.email)
+        .doc(currentUser)
         .get()
-        .then((value) {
-      for (var element in value.docs) {
-        userModel = UserModel.fromJson(element);
-      }
-      setState(() {});
+        .then((data) {
+      setState(() {
+        userModel = UserModel.fromJson(data);
+      });
     });
   }
 
@@ -77,7 +76,9 @@ class _HomeScreenState extends State<HomeScreen>
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const NoticeScreen()));
+                        builder: (context) => NoticeScreen(
+                              userModel: userModel!,
+                            )));
               }),
           const SizedBox(width: 8),
         ],

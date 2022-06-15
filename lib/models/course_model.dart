@@ -7,7 +7,7 @@ class CourseModel {
   final String courseTitle;
   final String courseCredits;
   final String courseMarks;
-  final List<String> batchList;
+  final List<String> sessionList;
   final String imageUrl;
 
   CourseModel({
@@ -17,7 +17,7 @@ class CourseModel {
     required this.courseTitle,
     required this.courseCredits,
     required this.courseMarks,
-    required this.batchList,
+    required this.sessionList,
     required this.imageUrl,
   });
 
@@ -30,7 +30,7 @@ class CourseModel {
           courseTitle: json['courseTitle']! as String,
           courseCredits: json['courseCredits']! as String,
           courseMarks: json['courseMarks']! as String,
-          batchList: (json['batchList']! as List).cast<String>(),
+          sessionList: (json['sessionList']! as List).cast<String>(),
           imageUrl: json['imageUrl']! as String,
         );
 
@@ -38,7 +38,7 @@ class CourseModel {
   Map<String, dynamic> toJson() {
     return {
       'courseYear': courseYear,
-      'batchList': batchList,
+      'sessionList': sessionList,
       'courseCategory': courseCategory,
       'courseCode': courseCode,
       'courseTitle': courseTitle,

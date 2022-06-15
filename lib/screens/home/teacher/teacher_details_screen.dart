@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:campus_assistant/screens/home/teacher/teachers_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:share_plus/share_plus.dart';
@@ -7,17 +6,21 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '/widgets/custom_button.dart';
 import '../../../models/teacher_model.dart';
+import '../../../models/user_model.dart';
 
 class TeacherDetailsScreen extends StatelessWidget {
   static const routeName = 'teacher_details_screen';
 
-  const TeacherDetailsScreen({Key? key}) : super(key: key);
+  const TeacherDetailsScreen({
+    Key? key,
+    required this.userModel,
+    required this.teacherModel,
+  }) : super(key: key);
+  final UserModel userModel;
+  final TeacherModel teacherModel;
 
   @override
   Widget build(BuildContext context) {
-    final teacherModel =
-        ModalRoute.of(context)!.settings.arguments as TeacherModel;
-
     return Scaffold(
       body: SafeArea(
         child: Scaffold(
@@ -40,21 +43,6 @@ class TeacherDetailsScreen extends StatelessWidget {
                     icon: const Icon(Icons.share)),
               )
             ],
-          ),
-
-          //edit teacher
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () {
-              //
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        TeacherEdit(teacherModel: teacherModel),
-                  ));
-            },
-            icon: const Icon(Icons.edit),
-            label: const Text('Edit'),
           ),
 
           //

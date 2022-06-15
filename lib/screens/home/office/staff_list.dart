@@ -1,9 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:campus_assistant/models/stuff_model.dart';
-import 'package:campus_assistant/models/user_model.dart';
+import 'package:campus_assistant/utils/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '/models/stuff_model.dart';
+import '/models/user_model.dart';
+import '/widgets/open_app.dart';
 
 class StuffList extends StatelessWidget {
   const StuffList({
@@ -16,31 +19,32 @@ class StuffList extends StatelessWidget {
   Widget build(BuildContext context) {
     var ref = FirebaseFirestore.instance
         .collection('Universities')
-        .doc('University of Chittagong')
+        .doc(userModel.university)
         .collection('Departments')
-        .doc('Department of Psychology')
-        .collection('Stuff');
+        .doc(userModel.department);
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          //
-          StuffModel stuffModel = StuffModel(
-              name: 'name',
-              post: 'post',
-              phone: 'phone',
-              serial: 0,
-              imageUrl: 'imageUrl');
+      floatingActionButton: userModel.role[UserRole.admin.name]
+          ? FloatingActionButton(
+              onPressed: () async {
+                //
+                StaffModel staffModel = StaffModel(
+                  name: '',
+                  post: '',
+                  phone: '',
+                  serial: 1,
+                  imageUrl: '',
+                );
 
-          //
-          ref.doc().set(stuffModel.toJson());
-        },
-        label: const Text('Add'),
-        icon: const Icon(Icons.add),
-      ),
+                // todo: late add
+                // ref.collection('Staff').doc().set(staffModel.toJson());
+              },
+              child: const Icon(Icons.add),
+            )
+          : null,
       //
       body: StreamBuilder<QuerySnapshot>(
-        stream: ref.orderBy('serial').snapshots(),
+        stream: ref.collection('Staff').orderBy('serial').snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) {
             return const Text('Something went wrong');
@@ -57,7 +61,7 @@ class StuffList extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             itemCount: data.length,
             itemBuilder: (BuildContext context, int index) {
-              StuffModel stuffModel = StuffModel.fromJson(data[index]);
+              StaffModel staffModel = StaffModel.fromJson(data[index]);
 
               //
               return GestureDetector(
@@ -80,9 +84,9 @@ class StuffList extends StatelessWidget {
                         //
                         Row(
                           children: [
-                            //
+                            //image
                             CachedNetworkImage(
-                              imageUrl: stuffModel.imageUrl,
+                              imageUrl: staffModel.imageUrl,
                               fadeInDuration: const Duration(milliseconds: 500),
                               imageBuilder: (context, imageProvider) =>
                                   CircleAvatar(
@@ -106,28 +110,47 @@ class StuffList extends StatelessWidget {
 
                             const SizedBox(width: 12),
 
-                            //
+                            //name, post, phone
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 //name
                                 Text(
-                                  stuffModel.name,
+                                  staffModel.name,
                                   style: Theme.of(context).textTheme.subtitle1,
                                 ),
 
                                 //post
                                 Text(
-                                  stuffModel.post,
+                                  staffModel.post,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyText2!
+                                      .copyWith(color: Colors.grey),
                                 ),
 
                                 const SizedBox(height: 8),
 
                                 //
-                                SelectableText(
-                                  stuffModel.phone,
-                                  style: Theme.of(context).textTheme.bodyText1,
-                                ),
+                                if (staffModel.phone.isNotEmpty)
+                                  Row(
+                                    children: [
+                                      //
+                                      const Icon(
+                                        Icons.phone_android_outlined,
+                                        size: 16,
+                                      ),
+
+                                      const SizedBox(width: 8),
+                                      //
+                                      SelectableText(
+                                        staffModel.phone,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyText1,
+                                      ),
+                                    ],
+                                  ),
                                 //
                               ],
                             ),
@@ -135,13 +158,16 @@ class StuffList extends StatelessWidget {
                         ),
 
                         //
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.call_outlined,
-                            color: Colors.green,
-                          ),
-                        )
+                        if (staffModel.phone.isNotEmpty)
+                          IconButton(
+                            onPressed: () {
+                              OpenApp.withNumber(staffModel.phone);
+                            },
+                            icon: const Icon(
+                              Icons.call_outlined,
+                              color: Colors.green,
+                            ),
+                          )
                       ],
                     ),
                   ),

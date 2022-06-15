@@ -5,7 +5,7 @@ import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:multi_select_flutter/util/multi_select_list_type.dart';
 
 import '/database_service.dart';
-import '/models/course_chapter_model.dart';
+import '/models/chapter_model.dart';
 import '/models/course_model.dart';
 import '/models/user_model.dart';
 import '/utils/constants.dart';
@@ -27,19 +27,19 @@ class AddChapter extends StatefulWidget {
   final String courseType;
 
   @override
-  _AddChapterState createState() => _AddChapterState();
+  State<AddChapter> createState() => _AddChapterState();
 }
 
 class _AddChapterState extends State<AddChapter> {
   final GlobalKey<FormState> _formState = GlobalKey<FormState>();
   int? _selectedChapterNo;
-  List<String>? _selectedBatchList;
+  List<String>? _selectedSessionList;
 
   final TextEditingController _chapterTitleController = TextEditingController();
 
   @override
   void initState() {
-    _selectedBatchList = kBatchList;
+    _selectedSessionList = kSessionList;
     super.initState();
   }
 
@@ -67,7 +67,7 @@ class _AddChapterState extends State<AddChapter> {
             buildPathSection(
               widget.selectedYear,
               widget.courseModel.courseCategory,
-              widget.courseModel.courseCode,
+              'Psy ${widget.courseModel.courseCode}',
               'Chapters',
             ),
 
@@ -85,7 +85,7 @@ class _AddChapterState extends State<AddChapter> {
 
                       const SizedBox(width: 16),
 
-                      //
+                      // chapter
                       Expanded(
                         child: ButtonTheme(
                           alignedDropdown: true,
@@ -141,7 +141,7 @@ class _AddChapterState extends State<AddChapter> {
 
                   const SizedBox(height: 16),
 
-                  // batch list
+                  // session list
                   MultiSelectDialogField(
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.black38),
@@ -150,20 +150,20 @@ class _AddChapterState extends State<AddChapter> {
                     selectedColor: Colors.blueAccent.shade100,
                     selectedItemsTextStyle:
                         const TextStyle(color: Colors.black),
-                    title: const Text('Accessible Batch List'),
-                    buttonText: const Text('Batch List'),
+                    title: const Text('Session List'),
+                    buttonText: const Text('Session List'),
                     buttonIcon: const Icon(Icons.arrow_drop_down),
-                    initialValue: _selectedBatchList,
+                    initialValue: _selectedSessionList,
                     items:
-                        kBatchList.map((e) => MultiSelectItem(e, e)).toList(),
+                        kSessionList.map((e) => MultiSelectItem(e, e)).toList(),
                     listType: MultiSelectListType.CHIP,
                     onConfirm: (List<String> values) {
                       setState(() {
-                        _selectedBatchList = values;
+                        _selectedSessionList = values;
                       });
                     },
                     validator: (values) => (values == null || values.isEmpty)
-                        ? "Select some batch"
+                        ? "Select session"
                         : null,
                   ),
 
@@ -175,11 +175,12 @@ class _AddChapterState extends State<AddChapter> {
                     child: ElevatedButton(
                         onPressed: () {
                           if (_formState.currentState!.validate()) {
-                            CourseChapterModel courseLessonModel =
-                                CourseChapterModel(
+                            //
+                            ChapterModel courseLessonModel = ChapterModel(
+                              courseCode: widget.courseModel.courseCode.trim(),
                               chapterNo: _selectedChapterNo!,
                               chapterTitle: _chapterTitleController.text.trim(),
-                              batchList: _selectedBatchList!,
+                              sessionList: _selectedSessionList!,
                             );
 
                             //
@@ -198,9 +199,9 @@ class _AddChapterState extends State<AddChapter> {
                             Navigator.pop(context);
                           }
                         },
-                        child: const Padding(
-                            padding: EdgeInsets.all(18.0),
-                            child: Text('upload'))),
+                        child: Padding(
+                            padding: const EdgeInsets.all(18.0),
+                            child: Text('upload'.toUpperCase()))),
                   ),
                 ],
               ),

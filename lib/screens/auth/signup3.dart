@@ -1,11 +1,15 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 
-import '/models/user_model.dart';
-import '/screens/dashboard/dashboard.dart';
-import '../../utils/constants.dart';
+import '../../models/user_model.dart';
+import '../dashboard/dashboard.dart';
 
 class SignUpScreen3 extends StatefulWidget {
   const SignUpScreen3({
@@ -15,7 +19,10 @@ class SignUpScreen3 extends StatefulWidget {
     required this.batch,
     required this.id,
     required this.session,
-    required this.hallList,
+    required this.name,
+    required this.phone,
+    required this.selectedHall,
+    required this.bloodGroup,
   }) : super(key: key);
 
   final String university;
@@ -23,7 +30,10 @@ class SignUpScreen3 extends StatefulWidget {
   final String batch;
   final String id;
   final String session;
-  final List<String> hallList;
+  final String name;
+  final String phone;
+  final String selectedHall;
+  final String bloodGroup;
 
   @override
   State<SignUpScreen3> createState() => _SignUpScreen3State();
@@ -31,224 +41,202 @@ class SignUpScreen3 extends StatefulWidget {
 
 class _SignUpScreen3State extends State<SignUpScreen3> {
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _mobileController = TextEditingController();
-  String? _selectedBloodGroup;
-  String? _selectedHall;
 
   bool _isObscure = true;
   bool _isLoading = false;
 
+  XFile? _pickedImage;
+
+  UploadTask? task;
+  bool isTaskActive = false;
+
   var regExp = RegExp(
       r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+
+  //
+  Future<void> _pickImage() async {
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    if (image == null) return;
+    ImageCropper imageCropper = ImageCropper();
+
+    CroppedFile? croppedImage = await imageCropper.cropImage(
+      sourcePath: image.path,
+      aspectRatioPresets: [
+        CropAspectRatioPreset.original,
+        CropAspectRatioPreset.square,
+        CropAspectRatioPreset.ratio3x2,
+        CropAspectRatioPreset.ratio4x3,
+        CropAspectRatioPreset.ratio16x9
+      ],
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'image Customization',
+          toolbarColor: ThemeData().cardColor,
+          toolbarWidgetColor: Colors.deepOrange,
+          initAspectRatio: CropAspectRatioPreset.square,
+          lockAspectRatio: false,
+        )
+      ],
+    );
+    if (croppedImage == null) return;
+
+    setState(() {
+      _pickedImage = XFile(croppedImage.path);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Scaffold(
-        body: SafeArea(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: Form(
-              key: _globalKey,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    //
-                    Text(
-                      'Create \nAccount',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    //name
-                    TextFormField(
-                      controller: _nameController,
-                      keyboardType: TextInputType.name,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: InputDecoration(
-                        hintText: 'Name',
-                        prefixIcon: const Icon(Icons.person_pin_outlined),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                      ),
-                      validator: (val) {
-                        if (val!.isEmpty) {
-                          return 'Enter your name';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    //email
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        hintText: 'Email',
-                        prefixIcon: const Icon(Icons.mail_outline_outlined),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        // suffixIcon: regExp.hasMatch(_emailcontroller.text)
-                        //     ? const Icon(Icons.check, color: Colors.green)
-                        //     : const Icon(Icons.check),
-                      ),
-                      validator: (val) {
-                        if (val!.isEmpty) {
-                          return 'Enter your email';
-                        } else if (!regExp.hasMatch(val)) {
-                          return 'Enter valid email';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    //password
-                    TextFormField(
-                      controller: _passwordController,
-                      keyboardType: TextInputType.visiblePassword,
-                      decoration: InputDecoration(
-                        hintText: 'Password',
-                        prefixIcon: const Icon(Icons.lock_open_outlined),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _isObscure = !_isObscure;
-                              });
-                            },
-                            icon: Icon(_isObscure
-                                ? Icons.visibility_off_outlined
-                                : Icons.remove_red_eye_outlined)),
-                      ),
-                      obscureText: _isObscure,
-                      validator: (val) {
-                        if (val!.isEmpty) {
-                          return 'Enter your password';
-                        } else if (val.length < 8) {
-                          return 'Password at least 8 character';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // mobile
-                    TextFormField(
-                      controller: _mobileController,
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Enter Mobile Number';
-                        } else if (value.length < 11 || value.length > 11) {
-                          return 'Mobile Number at least 11 digits';
-                        }
-                        return null;
-                      },
-                      decoration: const InputDecoration(
-                          hintText: 'Mobile Number',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.phone_android_outlined)),
-                      keyboardType: TextInputType.number,
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // blood
-                    DropdownButtonFormField(
-                      value: _selectedBloodGroup,
-                      hint: const Text('Select Blood Group'),
-                      // isExpanded: true,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 18, horizontal: 8),
-                        prefixIcon: Icon(Icons.bloodtype_outlined),
-                      ),
-                      onChanged: (String? value) {
-                        setState(() {
-                          _selectedBloodGroup = value;
-                        });
-                      },
-                      validator: (value) =>
-                          value == null ? "Select your blood group" : null,
-                      items: kBloodGroup.map((String val) {
-                        return DropdownMenuItem(
-                          value: val,
-                          child: Text(
-                            val,
+        appBar: AppBar(
+          title: const Text('Create Account'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _globalKey,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  //image pick
+                  Container(
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    child: Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        GestureDetector(
+                          onTap: () => _pickImage(),
+                          child: Container(
+                            height: 200,
+                            width: 200,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                            ),
+                            child: _pickedImage == null
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(100),
+                                    child: Image.asset(
+                                        'assets/images/pp_placeholder.png',
+                                        fit: BoxFit.cover))
+                                : ClipRRect(
+                                    borderRadius: BorderRadius.circular(100),
+                                    child: Image.file(
+                                      File(_pickedImage!.path),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                           ),
-                        );
-                      }).toList(),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // hall
-                    DropdownButtonFormField(
-                      isExpanded: true,
-                      value: _selectedHall,
-                      hint: const Text('Choose Hall'),
-                      // isExpanded: true,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 18, horizontal: 8),
-                        prefixIcon: Icon(Icons.home_work_outlined),
-                      ),
-                      onChanged: (String? value) {
-                        setState(() {
-                          _selectedHall = value;
-                        });
-                      },
-                      validator: (value) =>
-                          value == null ? "Select your hall" : null,
-                      items: widget.hallList.map((String val) {
-                        return DropdownMenuItem(
-                          value: val,
-                          child: Text(
-                            val,
-                            overflow: TextOverflow.ellipsis,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 16,
+                          child: MaterialButton(
+                            onPressed: () => _pickImage(),
+                            shape: const CircleBorder(),
+                            color: Colors.grey.shade300,
+                            padding: const EdgeInsets.all(12),
+                            minWidth: 24,
+                            child: const Icon(Icons.camera),
                           ),
-                        );
-                      }).toList(),
+                        ),
+                      ],
                     ),
+                  ),
 
-                    const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
-                    //log in
-                    ElevatedButton(
-                        onPressed: _isLoading
-                            ? null
-                            : () async {
-                                //
-                                if (_globalKey.currentState!.validate()) {
-                                  setState(() => _isLoading = true);
+                  //email
+                  TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      hintText: 'Email',
+                      labelText: 'Email',
+                      prefixIcon: const Icon(Icons.mail_outline_outlined),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      // suffixIcon: regExp.hasMatch(_emailController.text)
+                      //     ? const Icon(Icons.check, color: Colors.green)
+                      //     : const Icon(Icons.check),
+                    ),
+                    validator: (val) {
+                      if (val!.isEmpty) {
+                        return 'Enter your email';
+                      } else if (!regExp.hasMatch(val)) {
+                        return 'Enter valid email';
+                      }
+                      return null;
+                    },
+                  ),
 
-                                  //
-                                  await createNewUser(
-                                    email: _emailController.text.trim(),
-                                    password: _passwordController.text.trim(),
-                                  );
-                                }
-                              },
-                        child: _isLoading
-                            ? const CircularProgressIndicator()
-                            : const Text('Sign up')),
+                  const SizedBox(height: 16),
 
-                    const SizedBox(height: 16),
-                  ],
-                ),
+                  //password
+                  TextFormField(
+                    controller: _passwordController,
+                    keyboardType: TextInputType.visiblePassword,
+                    decoration: InputDecoration(
+                      hintText: 'Password',
+                      labelText: 'Password',
+                      prefixIcon: const Icon(Icons.lock_open_outlined),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _isObscure = !_isObscure;
+                            });
+                          },
+                          icon: Icon(_isObscure
+                              ? Icons.visibility_off_outlined
+                              : Icons.remove_red_eye_outlined)),
+                    ),
+                    obscureText: _isObscure,
+                    validator: (val) {
+                      if (val!.isEmpty) {
+                        return 'Enter your password';
+                      } else if (val.length < 8) {
+                        return 'Password at least 8 character';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // button
+                  ElevatedButton(
+                    onPressed: _isLoading
+                        ? null
+                        : () async {
+                            if (_pickedImage == null) {
+                              Fluttertoast.cancel();
+                              Fluttertoast.showToast(msg: 'No Image Selected');
+
+                              //
+                            } else if (_globalKey.currentState!.validate()) {
+                              setState(() => _isLoading = true);
+
+                              //
+                              await createNewUser(
+                                email: _emailController.text.trim(),
+                                password: _passwordController.text.trim(),
+                              );
+                            }
+                          },
+                    child: _isLoading
+                        ? const CircularProgressIndicator()
+                        : Text('Sign Up'.toUpperCase()),
+                  ),
+                ],
               ),
             ),
           ),
@@ -256,6 +244,8 @@ class _SignUpScreen3State extends State<SignUpScreen3> {
       ),
     );
   }
+
+  //
 
   // createNewUser
   createNewUser({required String email, required String password}) async {
@@ -269,18 +259,14 @@ class _SignUpScreen3State extends State<SignUpScreen3> {
       print(user);
 
       if (user != null) {
-        //
-        // uploadImageFile();
-
-        //
-        await addUserInformation(user);
+        // 1
+        await uploadImageFile(user);
 
         //
         setState(() => _isLoading = false);
-        // Fluttertoast.showToast(msg: 'Registration successful');
-        // Navigator.pushNamedAndRemoveUntil(context, DashboardScreen.routeName,
-        //     ((Route<dynamic> route) => false));
+
         //
+        if (!mounted) return null;
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const DashboardScreen()),
@@ -326,80 +312,78 @@ class _SignUpScreen3State extends State<SignUpScreen3> {
   }
 
   // upload and download url
-  // Future uploadImageFile() async {
-  //   final filePath = 'Users/${widget.batch}';
-  //   // final fileName = basename(_imageFile!.path);
-  //   // final destination = '$filePath/$fileName';
-  //   final destination = '$filePath/${widget.id}.jpg';
-  //
-  //   task = FirebaseApi.uploadFile(destination, _imageFile!);
-  //   setState(() {});
-  //
-  //   if (task == null) return;
-  //
-  //   final snapshot = await task!.whenComplete(() {});
-  //   final downloadedUrl = await snapshot.ref.getDownloadURL();
-  //   print('Download-Link: $downloadedUrl');
-  //
-  //   // cloud fire store
-  //   addStudentInformation(downloadedUrl);
-  // }
+  Future uploadImageFile(User user) async {
+    final filePath = 'Users/${widget.university}';
+    final destination = '$filePath/${widget.id}.jpg';
+
+    task = FirebaseStorage.instance
+        .ref(destination)
+        .putFile(File(_pickedImage!.path));
+    setState(() {});
+
+    if (task == null) return;
+
+    final snapshot = await task!.whenComplete(() {});
+    var downloadedUrl = await snapshot.ref.getDownloadURL();
+    print('Download-Link: $downloadedUrl');
+
+    // cloud fire store
+    await addUserInformation(user, downloadedUrl);
+  }
 
   //
-  // addStudentInformation(String downloadedUrl) async {
-  //   //
-  //   Map<String, dynamic> studentInfo = {
-  //     'mobile': widget.mobile,
-  //     'hall': widget.hall,
-  //     'imageUrl': downloadedUrl,
-  //   };
-  //
-  //   await FirebaseFirestore.instance
-  //       .collection('Psychology')
-  //       .doc('Students')
-  //       .collection(widget.batch!)
-  //       .doc(widget.id)
-  //       .update(studentInfo)
-  //       .whenComplete(() {
-  //     print('Add Information successfully');
-  //
-  //     //
-  //     removeVerificationToken();
-  //   });
-  // }
-
-  //
-  addUserInformation(User user) async {
+  addUserInformation(User user, String downloadedUrl) async {
     UserModel userModel = UserModel(
       university: widget.university,
       department: widget.department,
       batch: widget.batch,
       id: widget.id,
       session: widget.session,
-      name: _nameController.text.trim(),
+      name: widget.name,
       email: user.email!,
-      phone: _mobileController.text.trim(),
-      blood: _selectedBloodGroup.toString(),
-      hall: _selectedHall.toString(),
+      phone: widget.phone,
+      blood: widget.bloodGroup,
+      hall: widget.selectedHall,
       status: 'Basic',
-      imageUrl: '',
+      imageUrl: downloadedUrl,
+      role: {
+        'admin': false,
+        'cr': false,
+      },
     );
+
     //
     await FirebaseFirestore.instance
         .collection('Users')
         .doc(user.uid)
         .set(userModel.toJson());
+
+    //
+
+    await updateVerificationToken(user, downloadedUrl);
   }
 
-  // remove token
-  // removeVerificationToken() async {
-  //   FirebaseFirestore.instance
-  //       .collection('Psychology')
-  //       .doc('Verify')
-  //       .collection(widget.batch!)
-  //       .doc(widget.id)
-  //       .update({'token': 'used'}).whenComplete(() {
-  //     print('Remove Token successfully');
-  //   });
-  // }
+  // update student info
+  updateVerificationToken(User user, String downloadUrl) async {
+    FirebaseFirestore.instance
+        .collection('Universities')
+        .doc(widget.university)
+        .collection('Departments')
+        .doc(widget.department)
+        .collection('Students')
+        .doc('Batch List')
+        .collection(widget.batch)
+        .doc(widget.id)
+        .update({
+      'email': user.email,
+      'blood': widget.bloodGroup,
+      'hall': widget.selectedHall,
+      'phone': widget.phone,
+      'token': 'USED',
+      'imageUrl': downloadUrl,
+      'role': [],
+    }).whenComplete(() {
+      print('Remove Token successfully');
+    });
+  }
 }

@@ -9,6 +9,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '/models/student_model.dart';
+import '../../../../utils/constants.dart';
+import '../../../../widgets/open_app.dart';
 import '../edit_student.dart';
 
 class BatchStudentCard extends StatelessWidget {
@@ -85,27 +87,67 @@ class BatchStudentCard extends StatelessWidget {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 3, bottom: 1),
-                      child: Text.rich(
-                        TextSpan(
-                          text: 'ID: ',
-                          style: Theme.of(context).textTheme.subtitle2,
-                          children: [
+                    // id, blood
+                    Row(
+                      children: [
+                        //id
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3, bottom: 1),
+                          child: Text.rich(
                             TextSpan(
-                              text: studentModel.id,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .subtitle1!
-                                  .copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black,
-                                  ),
-                            )
-                          ],
+                              text: 'ID: ',
+                              style: Theme.of(context).textTheme.subtitle2,
+                              children: [
+                                TextSpan(
+                                  text: studentModel.id,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .subtitle1!
+                                      .copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black,
+                                      ),
+                                )
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+
+                        if (studentModel.blood.isNotEmpty)
+                          const SizedBox(
+                            height: 16,
+                            child: VerticalDivider(
+                              color: Colors.grey,
+                            ),
+                          ),
+
+                        if (studentModel.blood.isNotEmpty)
+                          //blood
+                          Padding(
+                            padding: const EdgeInsets.only(top: 3, bottom: 1),
+                            child: Text.rich(
+                              TextSpan(
+                                text: 'Blood:  ',
+                                style: Theme.of(context).textTheme.subtitle2,
+                                children: [
+                                  TextSpan(
+                                    text: studentModel.blood,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .subtitle1!
+                                        .copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.red,
+                                        ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
+
+                    //
                     if (studentModel.hall != 'None')
                       Text.rich(
                         TextSpan(
@@ -121,42 +163,74 @@ class BatchStudentCard extends StatelessWidget {
                       ),
                   ],
                 ),
-                // isThreeLine: true,
+                // call [admin]
+                trailing: (userModel.role[UserRole.admin.name] &&
+                        studentModel.phone.isNotEmpty)
+                    ? IconButton(
+                        onPressed: () {
+                          OpenApp.withNumber(studentModel.phone);
+                        },
+                        icon: const Icon(
+                          Icons.call_outlined,
+                          color: Colors.green,
+                        ),
+                      )
+                    : null,
               ),
 
-              //
-              Container(
-                height: 36,
-                width: double.infinity,
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).dividerColor,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(8),
-                    bottomRight: Radius.circular(8),
+              // admin
+              if (userModel.role[UserRole.admin.name])
+                Container(
+                  height: 36,
+                  width: double.infinity,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.only(left: 12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).dividerColor,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(8),
+                      bottomRight: Radius.circular(8),
+                    ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    const Text('Token: '),
+                  child: Row(
+                    children: [
+                      const Text('Token: '),
 
-                    const SizedBox(width: 8),
+                      const SizedBox(width: 8),
 
-                    // copy token
-                    (studentModel.token != 'Used')
-                        ? GestureDetector(
-                            onTap: () {
-                              //
-                              Clipboard.setData(ClipboardData(text: shareToken))
-                                  .then((value) {
-                                Fluttertoast.showToast(
-                                    msg: 'Copy to clipboard');
-                              });
-                            },
-                            child: Container(
+                      // copy token
+                      (studentModel.token != 'USED')
+                          ? GestureDetector(
+                              onTap: () {
+                                //
+                                Clipboard.setData(
+                                        ClipboardData(text: shareToken))
+                                    .then((value) {
+                                  Fluttertoast.showToast(
+                                      msg: 'Copy to clipboard');
+                                });
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).dividerColor,
+                                  borderRadius: BorderRadius.circular(32),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 3,
+                                  horizontal: 8,
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.copy_outlined, size: 16),
+                                    const SizedBox(width: 4),
+                                    Text(studentModel.token),
+                                  ],
+                                ),
+                              ),
+                            )
+                          : Container(
                               decoration: BoxDecoration(
-                                color: Theme.of(context).dividerColor,
+                                color: Colors.green.shade200,
                                 borderRadius: BorderRadius.circular(32),
                               ),
                               padding: const EdgeInsets.symmetric(
@@ -165,146 +239,131 @@ class BatchStudentCard extends StatelessWidget {
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.copy_outlined, size: 16),
+                                  const Icon(
+                                      Icons.check_circle_outline_outlined,
+                                      size: 16),
                                   const SizedBox(width: 4),
                                   Text(studentModel.token),
                                 ],
                               ),
                             ),
-                          )
-                        : Container(
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade200,
-                              borderRadius: BorderRadius.circular(32),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 3,
-                              horizontal: 8,
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.check_circle_outline_outlined,
-                                    size: 16),
-                                const SizedBox(width: 4),
-                                Text(studentModel.token),
-                              ],
-                            ),
-                          ),
 
-                    const SizedBox(width: 8),
+                      const SizedBox(width: 8),
 
-                    //
+                      //
 
-                    (studentModel.token != 'Used')
-                        ? GestureDetector(
-                            onTap: () {
-                              Share.share(shareToken);
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.blue.shade100,
-                                borderRadius: BorderRadius.circular(32),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 3,
-                                horizontal: 8,
-                              ),
-                              child: Row(
-                                children: const [
-                                  Icon(Icons.share_outlined, size: 16),
-                                  SizedBox(width: 4),
-                                  Text('Share'),
-                                ],
-                              ),
-                            ),
-                          )
-                        : GestureDetector(
-                            onTap: () async {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Generate code'),
-                                  content: const Text(
-                                      'Sure to regenerate verification code?'),
-                                  actions: [
-                                    TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: const Text('Cancel')),
-                                    TextButton(
-                                        onPressed: () async {
-                                          //
-                                          await ref
-                                              .doc(studentModel.id)
-                                              .update({
-                                            'token': createToken(
-                                                batch: userModel.batch,
-                                                id: studentModel.id),
-                                          }).then((value) =>
-                                                  Navigator.pop(context));
-                                        },
-                                        child: const Text('Generate')),
+                      (studentModel.token != 'USED')
+                          ? GestureDetector(
+                              onTap: () {
+                                Share.share(shareToken);
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.shade100,
+                                  borderRadius: BorderRadius.circular(32),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 3,
+                                  horizontal: 8,
+                                ),
+                                child: Row(
+                                  children: const [
+                                    Icon(Icons.share_outlined, size: 16),
+                                    SizedBox(width: 4),
+                                    Text('Share'),
                                   ],
                                 ),
-                              );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).bottomAppBarColor,
-                                borderRadius: BorderRadius.circular(32),
                               ),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 3,
-                                horizontal: 8,
-                              ),
-                              child: Row(
-                                children: const [
-                                  Icon(Icons.touch_app_outlined, size: 16),
-                                  SizedBox(width: 4),
-                                  Text('Generate code'),
-                                ],
+                            )
+                          : GestureDetector(
+                              onTap: () async {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Generate Token'),
+                                    content: const Text(
+                                        'Sure to regenerate verification token?'),
+                                    actions: [
+                                      TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text('Cancel')),
+                                      TextButton(
+                                          onPressed: () async {
+                                            //
+                                            await ref
+                                                .doc(studentModel.id)
+                                                .update({
+                                              'token': createToken(
+                                                  batch: userModel.batch,
+                                                  id: studentModel.id),
+                                            }).then((value) =>
+                                                    Navigator.pop(context));
+                                          },
+                                          child: const Text('Generate')),
+                                    ],
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).bottomAppBarColor,
+                                  borderRadius: BorderRadius.circular(32),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 3,
+                                  horizontal: 8,
+                                ),
+                                child: Row(
+                                  children: const [
+                                    Icon(Icons.touch_app_outlined, size: 16),
+                                    SizedBox(width: 4),
+                                    Text('Generate Token'),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                  ],
+
+                      const Spacer(),
+
+                      //
+                      PopupMenuButton(
+                        itemBuilder: (context) => [
+                          //delete
+                          PopupMenuItem(
+                              value: 1,
+                              onTap: () {
+                                print('object');
+
+                                Future(() =>
+                                    //
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => EditStudent(
+                                            userModel: userModel,
+                                            selectedBatch: selectedBatch,
+                                            studentModel: studentModel,
+                                          ),
+                                        )));
+                              },
+                              child: const Text('Edit')),
+
+                          //delete
+                          PopupMenuItem(
+                              value: 2,
+                              onTap: () async {
+                                await ref.doc(studentModel.id).delete();
+                              },
+                              child: const Text('Delete')),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
-        ),
-
-        //
-        PopupMenuButton(
-          itemBuilder: (context) => [
-            //delete
-            PopupMenuItem(
-                value: 1,
-                onTap: () {
-                  print('object');
-
-                  Future(() =>
-                      //
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EditStudent(
-                              userModel: userModel,
-                              selectedBatch: selectedBatch,
-                              studentModel: studentModel,
-                            ),
-                          )));
-                },
-                child: const Text('Edit')),
-
-            //delete
-            PopupMenuItem(
-                value: 2,
-                onTap: () async {
-                  await ref.doc(studentModel.id).delete();
-                },
-                child: const Text('Delete')),
-          ],
         ),
       ],
     );

@@ -1,10 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../../../models/user_model.dart';
 import '../course6_bookmarks.dart';
 
 class BookmarkCounter extends StatelessWidget {
-  const BookmarkCounter({Key? key}) : super(key: key);
+  const BookmarkCounter({
+    Key? key,
+    required this.userModel,
+  }) : super(key: key);
+
+  final UserModel userModel;
 
   @override
   Widget build(BuildContext context) {
@@ -12,12 +18,12 @@ class BookmarkCounter extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection("Universities")
-            .doc("University of Chittagong")
+            .doc(userModel.university)
             .collection('Departments')
-            .doc('Department of Psychology')
-            .collection('Study')
-            .doc('Bookmarks')
-            .collection('asifreyad1@gmail.com')
+            .doc(userModel.department)
+            .collection('Bookmarks')
+            .doc(userModel.email)
+            .collection('Contents')
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -39,7 +45,8 @@ class BookmarkCounter extends StatelessWidget {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const CourseBookMarks()));
+                      builder: (context) =>
+                          CourseBookMarks(userModel: userModel)));
             },
             child: Container(
               constraints: const BoxConstraints(

@@ -6,6 +6,7 @@ import '/screens/study/widgets/bookmark_counter.dart';
 import '../../utils/constants.dart';
 import 'course3_notes_chapters.dart';
 import 'course5_types_details.dart';
+import 'course7_videos.dart';
 
 class CourseTypeScreen extends StatefulWidget {
   const CourseTypeScreen({
@@ -14,12 +15,14 @@ class CourseTypeScreen extends StatefulWidget {
     required this.selectedYear,
     required this.id,
     required this.courseModel,
+    required this.selectedSession,
   }) : super(key: key);
 
   final UserModel userModel;
   final String selectedYear;
   final String id;
   final CourseModel courseModel;
+  final String selectedSession;
 
   @override
   State<CourseTypeScreen> createState() => _CourseTypeScreenState();
@@ -35,37 +38,44 @@ class _CourseTypeScreenState extends State<CourseTypeScreen> {
           titleSpacing: 0,
           centerTitle: true,
           title: Text(
-            '${widget.courseModel.courseCode} - ${widget.courseModel.courseTitle}',
+            'Psy ${widget.courseModel.courseCode} - ${widget.courseModel.courseTitle}',
           ),
 
           // tab bar
           bottom: TabBar(
+            isScrollable: true,
             tabs: kCourseType.map((tab) => Tab(text: tab)).toList(),
           ),
 
           // bookmark
-          actions: const [
-            BookmarkCounter(),
+          actions: [
+            BookmarkCounter(userModel: widget.userModel),
           ],
         ),
 
         //
         body: TabBarView(
           children: [
+            // chapter list
             CourseNotesChapters(
               userModel: widget.userModel,
               selectedYear: widget.selectedYear,
               id: widget.id,
               courseType: kCourseType[0],
               courseModel: widget.courseModel,
+              selectedSession: widget.selectedSession,
             ),
-            CourseTypesDetails(
+
+            //video list
+            CourseVideos(
               userModel: widget.userModel,
               selectedYear: widget.selectedYear,
               id: widget.id,
-              courseType: kCourseType[1],
+              // courseChapterModel: courseChapterModel,
               courseModel: widget.courseModel,
             ),
+
+            //
             CourseTypesDetails(
               userModel: widget.userModel,
               selectedYear: widget.selectedYear,
@@ -78,6 +88,13 @@ class _CourseTypeScreenState extends State<CourseTypeScreen> {
               selectedYear: widget.selectedYear,
               id: widget.id,
               courseType: kCourseType[3],
+              courseModel: widget.courseModel,
+            ),
+            CourseTypesDetails(
+              userModel: widget.userModel,
+              selectedYear: widget.selectedYear,
+              id: widget.id,
+              courseType: kCourseType[4],
               courseModel: widget.courseModel,
             ),
           ],

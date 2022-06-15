@@ -14,6 +14,7 @@ class UserModel {
     required this.hall,
     required this.status,
     required this.imageUrl,
+    required this.role,
   });
 
   final String university;
@@ -28,6 +29,7 @@ class UserModel {
   final String hall;
   final String status;
   final String imageUrl;
+  final Map<dynamic, dynamic> role;
 
   // get
   UserModel.fromJson(DocumentSnapshot json)
@@ -44,6 +46,7 @@ class UserModel {
           hall: json['hall']! as String,
           status: json['status']! as String,
           imageUrl: json['imageUrl']! as String,
+          role: (json['role']!) as Map,
         );
 
   // up
@@ -60,5 +63,6 @@ class UserModel {
         'hall': hall,
         'status': status,
         'imageUrl': imageUrl,
+        'role': role,
       };
 }

@@ -2,9 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '/models/teacher_model.dart';
+import '../../../models/user_model.dart';
 
 class TeacherEdit extends StatefulWidget {
-  const TeacherEdit({Key? key, required this.teacherModel}) : super(key: key);
+  const TeacherEdit({
+    Key? key,
+    required this.teacherModel,
+    required this.userModel,
+  }) : super(key: key);
+  final UserModel userModel;
   final TeacherModel teacherModel;
 
   @override
@@ -86,7 +92,8 @@ class _TeacherEditState extends State<TeacherEdit> {
                       ),
                       value: _selectedSerial,
                       isExpanded: true,
-                      items: serialList.map((serial) {
+                      items: List<int>.generate(25, (index) => index + 1)
+                          .map((serial) {
                         return DropdownMenuItem<int>(
                           value: serial,
                           child: Text(serial.toString()),
@@ -166,13 +173,13 @@ class _TeacherEditState extends State<TeacherEdit> {
                   counterText: '',
                 ),
                 textInputAction: TextInputAction.next,
-                maxLength: 11,
+                // maxLength: 11,
                 keyboardType: TextInputType.phone,
-                validator: (String? val) => val!.isEmpty
-                    ? 'Field must not be empty'
-                    : val.length < 11
-                        ? 'Mobile number must be 11 digit'
-                        : null,
+                // validator: (String? val) => val!.isEmpty
+                //     ? 'Field must not be empty'
+                //     : val.length < 11
+                //         ? 'Mobile number must be 11 digit'
+                //         : null,
               ),
 
               const SizedBox(height: 10),
@@ -186,8 +193,8 @@ class _TeacherEditState extends State<TeacherEdit> {
                 ),
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.emailAddress,
-                validator: (String? val) =>
-                    val!.isEmpty ? 'Field must not be empty' : null,
+                // validator: (String? val) =>
+                //     val!.isEmpty ? 'Field must not be empty' : null,
               ),
 
               const SizedBox(height: 10),
@@ -203,8 +210,8 @@ class _TeacherEditState extends State<TeacherEdit> {
                 keyboardType: TextInputType.multiline,
                 minLines: 1,
                 maxLines: 5,
-                validator: (String? val) =>
-                    val!.isEmpty ? 'Field must not be empty' : null,
+                // validator: (String? val) =>
+                //     val!.isEmpty ? 'Field must not be empty' : null,
               ),
 
               const SizedBox(height: 10),
@@ -223,6 +230,7 @@ class _TeacherEditState extends State<TeacherEdit> {
               ),
 
               const SizedBox(height: 10),
+
               //imageUrl
               TextFormField(
                 controller: _imageUrlController,
@@ -235,8 +243,8 @@ class _TeacherEditState extends State<TeacherEdit> {
                 keyboardType: TextInputType.url,
                 minLines: 1,
                 maxLines: 5,
-                validator: (String? val) =>
-                    val!.isEmpty ? 'Field must not be empty' : null,
+                // validator: (String? val) =>
+                //     val!.isEmpty ? 'Field must not be empty' : null,
               ),
 
               const SizedBox(height: 16),
@@ -248,6 +256,7 @@ class _TeacherEditState extends State<TeacherEdit> {
                       //validate
                       if (_globalKey.currentState!.validate()) {
                         TeacherModel teacher = TeacherModel(
+                          id: widget.teacherModel.id,
                           serial: _selectedSerial!,
                           present: _isPresent!,
                           name: _nameController.text.trim(),
@@ -262,23 +271,22 @@ class _TeacherEditState extends State<TeacherEdit> {
 
                         //
                         var ref = FirebaseFirestore.instance
-                            .collection('Psychology')
-                            .doc('Teachers');
+                            .collection('Universities')
+                            .doc(widget.userModel.university)
+                            .collection('Departments')
+                            .doc(widget.userModel.department)
+                            .collection('Teachers');
 
                         // Todo: delete old teacher info
                         ref
-                            .collection(
-                                _isPresent == true ? 'Present' : 'Absent')
-                            .doc()
+                            .doc(widget.teacherModel.id)
                             .set(teacher.toJson())
                             .then((value) {
                           ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Edit successful')));
 
-                          //delete old
-                          ref.collection(widget.teacherModel.present == true
-                              ? 'Present'
-                              : 'Absent');
+                          //
+                          Navigator.pop(context);
                         });
                       }
                     },
@@ -290,28 +298,6 @@ class _TeacherEditState extends State<TeacherEdit> {
   }
 
   //
-  List<int> serialList = [
-    01,
-    02,
-    03,
-    04,
-    05,
-    06,
-    07,
-    08,
-    09,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-  ];
   List<String> postList = [
     'Professor',
     'Associate Professor',

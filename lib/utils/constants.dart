@@ -23,7 +23,9 @@ const List<String> kCourseCategory = [
   'Practical Course'
 ];
 
-List kCourseType = ['Notes', 'Books', 'Questions', 'Syllabus'];
+List kCourseType = ['Chapters', 'Videos', 'Books', 'Questions', 'Syllabus'];
+
+List kArchive = ['Library', 'Research'];
 
 const List<String> kYearList = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
 
@@ -32,6 +34,13 @@ const List<String> kBatchList = [
   'Batch 14',
   'Batch 15',
   'Batch 16',
+];
+
+const List<String> kSessionList = [
+  '17-18',
+  '18-19',
+  '19-20',
+  '20-21',
 ];
 List<String> kStudentStatus = ['Regular', 'Irregular'];
 
@@ -55,6 +64,9 @@ List<String> kBloodGroup = [
   'O+',
   'O-',
 ];
+
+//role
+enum UserRole { admin, cr }
 
 // developer info
 const kDeveloperName = 'Md. Asifuzzaman Reyad';

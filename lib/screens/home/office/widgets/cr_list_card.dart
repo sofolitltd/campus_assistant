@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campus_assistant/screens/home/office/edit_cr.dart';
+import 'package:campus_assistant/widgets/open_app.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import '/models/cr_model.dart';
 import '/widgets/headline.dart';
 import '../../../../models/user_model.dart';
+import '../../../../utils/constants.dart';
 
 class CrListCard extends StatelessWidget {
   const CrListCard({
@@ -54,16 +56,18 @@ class CrListCard extends StatelessWidget {
 
                   //
                   return GestureDetector(
-                    onLongPress: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => EditCr(
-                                    userModel: userModel,
-                                    crModel: crModel,
-                                    docId: data[index].id,
-                                  )));
-                    },
+                    onLongPress: (userModel.role[UserRole.admin.name])
+                        ? () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => EditCr(
+                                          userModel: userModel,
+                                          crModel: crModel,
+                                          docId: data[index].id,
+                                        )));
+                          }
+                        : null,
                     child: Card(
                       margin: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
@@ -143,15 +147,13 @@ class CrListCard extends StatelessWidget {
                                   //mail
                                   if (crModel.email.isNotEmpty)
                                     ListTile(
-                                      onTap: () {},
+                                      onTap: () {
+                                        OpenApp.withEmail(crModel.email);
+                                      },
                                       title: Text(crModel.email),
-                                      leading: const Icon(
+                                      trailing: const Icon(
                                         Icons.email_outlined,
                                         color: Colors.redAccent,
-                                      ),
-                                      trailing: const Icon(
-                                        Icons.arrow_forward_ios_outlined,
-                                        size: 16,
                                       ),
                                     ),
 
@@ -165,14 +167,13 @@ class CrListCard extends StatelessWidget {
                                   //phone
                                   if (crModel.phone.isNotEmpty)
                                     ListTile(
+                                      onTap: () {
+                                        OpenApp.withNumber(crModel.phone);
+                                      },
                                       title: Text(crModel.phone),
-                                      leading: const Icon(
+                                      trailing: const Icon(
                                         Icons.call_outlined,
                                         color: Colors.green,
-                                      ),
-                                      trailing: const Icon(
-                                        Icons.arrow_forward_ios_outlined,
-                                        size: 16,
                                       ),
                                     ),
 
@@ -186,14 +187,13 @@ class CrListCard extends StatelessWidget {
                                   //fb
                                   if (crModel.fb.isNotEmpty)
                                     ListTile(
+                                      onTap: () {
+                                        OpenApp.withUrl(crModel.fb);
+                                      },
                                       title: Text(crModel.fb),
-                                      leading: const Icon(
+                                      trailing: const Icon(
                                         Icons.facebook_outlined,
                                         color: Colors.blueAccent,
-                                      ),
-                                      trailing: const Icon(
-                                        Icons.arrow_forward_ios_outlined,
-                                        size: 16,
                                       ),
                                     ),
                                 ],

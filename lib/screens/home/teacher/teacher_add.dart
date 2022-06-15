@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 import '/models/teacher_model.dart';
 import '../../../models/user_model.dart';
@@ -28,6 +29,7 @@ class _TeacherAddState extends State<TeacherAdd> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _interestController = TextEditingController();
   final TextEditingController _publicationsController = TextEditingController();
+  final TextEditingController _imageUrlController = TextEditingController();
 
   @override
   void initState() {
@@ -150,13 +152,13 @@ class _TeacherAddState extends State<TeacherAdd> {
                   counterText: '',
                 ),
                 textInputAction: TextInputAction.next,
-                maxLength: 11,
+                // maxLength: 11,
                 keyboardType: TextInputType.phone,
-                validator: (val) => val!.isEmpty
-                    ? 'Enter mobile no'
-                    : val.length < 11
-                        ? 'Mobile no must be 11 digits'
-                        : null,
+                // validator: (val) => val!.isEmpty
+                //     ? 'Enter mobile no'
+                //     : val.length < 11
+                //         ? 'Mobile no must be 11 digits'
+                //         : null,
               ),
 
               const SizedBox(height: 10),
@@ -171,7 +173,7 @@ class _TeacherAddState extends State<TeacherAdd> {
                 ),
                 textInputAction: TextInputAction.next,
                 keyboardType: TextInputType.emailAddress,
-                validator: (val) => val!.isEmpty ? 'Enter email' : null,
+                // validator: (val) => val!.isEmpty ? 'Enter email' : null,
               ),
 
               const SizedBox(height: 10),
@@ -223,6 +225,7 @@ class _TeacherAddState extends State<TeacherAdd> {
 
               //imageUrl
               TextFormField(
+                controller: _imageUrlController,
                 decoration: const InputDecoration(
                   hintText: 'Image Url',
                   label: Text('Image Url'),
@@ -240,8 +243,11 @@ class _TeacherAddState extends State<TeacherAdd> {
                       : () async {
                           if (_globalKey.currentState!.validate()) {
                             setState(() => _isLoading = true);
+
+                            String id = const Uuid().v1();
                             //
                             TeacherModel teacher = TeacherModel(
+                              id: id,
                               serial: _selectedSerial!,
                               present: _isPresent!,
                               name: _nameController.text.trim(),
@@ -258,7 +264,7 @@ class _TeacherAddState extends State<TeacherAdd> {
                                   _publicationsController.text.trim().isEmpty
                                       ? ''
                                       : _publicationsController.text.trim(),
-                              imageUrl: '',
+                              imageUrl: _imageUrlController.text.trim(),
                             );
 
                             //
@@ -268,7 +274,7 @@ class _TeacherAddState extends State<TeacherAdd> {
                                 .collection('Departments')
                                 .doc(widget.userModel.department)
                                 .collection('Teachers')
-                                .doc();
+                                .doc(id);
 
                             //
                             await ref.set(teacher.toJson()).then((value) {
@@ -279,6 +285,8 @@ class _TeacherAddState extends State<TeacherAdd> {
 
                               //
                               setState(() => _isLoading = false);
+                              //
+                              Navigator.pop(context);
                             });
                           }
                         },

@@ -75,13 +75,13 @@ class _AddCrState extends State<AddCr> {
               //email
               TextFormField(
                 controller: _emailController,
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Enter email';
-                  }
-                  //todo: email verify
-                  return null;
-                },
+                // validator: (value) {
+                //   if (value!.isEmpty) {
+                //     return 'Enter email';
+                //   }
+                //   //todo: email verify
+                //   return null;
+                // },
                 decoration: const InputDecoration(
                   hintText: 'Email',
                   labelText: 'Email',
@@ -141,7 +141,7 @@ class _AddCrState extends State<AddCr> {
                   });
                 },
                 validator: (value) => value == null ? "Select batch" : null,
-                items: kBatchList.map((String val) {
+                items: kBatchList.reversed.map((String val) {
                   return DropdownMenuItem(
                     value: val,
                     child: Text(val),

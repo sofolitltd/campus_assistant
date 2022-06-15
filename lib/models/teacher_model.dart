@@ -1,18 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TeacherModel {
+  final String id;
   final bool present;
   final int serial;
-  final String name,
-      post,
-      phd,
-      mobile,
-      email,
-      imageUrl,
-      interests,
-      publications;
+  final String name;
+  final String post;
+  final String phd;
+  final String mobile;
+  final String email;
+  final String imageUrl;
+  final String interests;
+  final String publications;
 
   TeacherModel({
+    required this.id,
     required this.serial,
     required this.present,
     required this.name,
@@ -30,6 +32,7 @@ class TeacherModel {
     return {
       'serial': serial,
       'present': present,
+      'id': id,
       'name': name,
       'post': post,
       'phd': phd,
@@ -46,6 +49,7 @@ class TeacherModel {
       : this(
           serial: json['serial']! as int,
           present: json['present']! as bool,
+          id: json['id']! as String,
           name: json['name']! as String,
           post: json['post']! as String,
           phd: json['phd']! as String,

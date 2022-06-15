@@ -5,16 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:open_file/open_file.dart';
 
-import '/models/course_content_model.dart';
-import '/screens/study/widgets/bookmark_button.dart';
+import '/models/content_model.dart';
+import '/models/user_model.dart';
+import 'bookmark_button.dart';
 
 class ContentCard extends StatefulWidget {
-  const ContentCard(
-      {Key? key, required this.contentId, required this.courseContentModel})
-      : super(key: key);
+  const ContentCard({
+    Key? key,
+    required this.contentId,
+    required this.userModel,
+    required this.courseContentModel,
+  }) : super(key: key);
 
   final String contentId;
-  final CourseContentModel courseContentModel;
+  final UserModel userModel;
+  final ContentModel courseContentModel;
 
   @override
   State<ContentCard> createState() => _ContentCardState();
@@ -28,7 +33,7 @@ class _ContentCardState extends State<ContentCard> {
   @override
   Widget build(BuildContext context) {
     String fileName =
-        '${widget.courseContentModel.contentTitle}_${widget.courseContentModel.contentSubtitle}_${widget.courseContentModel.courseCode}_${widget.contentId.toString().substring(0, 5)}.pdf';
+        '${widget.courseContentModel.courseCode}_${widget.courseContentModel.contentTitle.replaceAll(RegExp('[^A-Za-z0-9]'), ' ')}_${widget.courseContentModel.contentSubtitle}_${widget.contentId.toString().substring(0, 5)}.pdf';
 
     return Card(
       elevation: 4,
@@ -87,149 +92,225 @@ class _ContentCardState extends State<ContentCard> {
           }
         },
         child: Stack(
-          alignment: Alignment.topRight,
           children: [
             //
             Padding(
-              padding: const EdgeInsets.only(
-                left: 12,
-                right: 10,
-                bottom: 10,
-                top: 12,
-              ),
-              child: Stack(
-                alignment: Alignment.bottomRight,
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+              child: Row(
                 children: [
                   //
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // title head
-                      Text(
-                        'Title',
-                        style:
-                            Theme.of(context).textTheme.bodySmall!.copyWith(),
-                      ),
-
-                      // const SizedBox(height: 2),
-
-                      //title
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(minHeight: 32),
-                        child: Text(
-                          widget.courseContentModel.contentTitle,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium!
-                              .copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-
-                      const SizedBox(height: 4),
-                      // sub head
-                      Text(
-                        widget.courseContentModel.contentSubtitleType,
-                        style:
-                            Theme.of(context).textTheme.bodySmall!.copyWith(),
-                      ),
-
-                      // const SizedBox(height: 2),
-
-                      // subtitle
-                      Flexible(
-                        child: Text(
-                          widget.courseContentModel.contentSubtitle,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall!
-                              .copyWith(),
-                        ),
-                      ),
-
-                      const SizedBox(height: 4),
-
-                      const Divider(height: 8),
-
-                      // title head
-                      Text(
-                        'Upload on:',
-                        style:
-                            Theme.of(context).textTheme.bodySmall!.copyWith(),
-                      ),
-
-                      const SizedBox(height: 2),
-
-                      //time
-                      Text(widget.courseContentModel.uploadDate,
-                          style: Theme.of(context).textTheme.labelMedium),
-                    ],
+                  Expanded(
+                    flex: 3,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: widget.courseContentModel.imageUrl.isEmpty
+                          ? Image.asset(
+                              'assets/images/placeholder.jpg',
+                              fit: BoxFit.cover,
+                            )
+                          : Image.network(
+                              widget.courseContentModel.imageUrl,
+                              fit: BoxFit.cover,
+                            ),
+                    ),
                   ),
 
-                  // download button
-                  if (downloadFileChecker(fileName: fileName))
-                    const Icon(
-                      Icons.check_circle_outline,
-                      color: Colors.green,
-                      size: 30,
-                    )
-                  else
-                    (_isLoading == false)
-                        ? GestureDetector(
-                            onTap: () async {
-                              setState(() => _isLoading = true);
+                  const SizedBox(width: 10),
 
-                              //
-                              await downloadFile(
-                                  widget.courseContentModel.fileUrl, fileName);
-
-                              //
-                              setState(() => _isLoading = false);
-                            },
-                            child: const Icon(
-                              Icons.downloading_rounded,
-                              color: Colors.red,
-                              size: 30,
-                            ),
-                          )
-                        : GestureDetector(
-                            onTap: () async {
-                              //
-
-                              // cancelToken.cancel();
-                            },
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                const Icon(
-                                  // Icons.clear,
-                                  Icons.downloading_rounded,
-                                  color: Colors.grey,
-                                  size: 24,
+                  //
+                  Expanded(
+                    flex: 7,
+                    child: Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            //title
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                minHeight: 32,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 24),
+                                child: Text(
+                                  widget.courseContentModel.contentTitle,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(fontWeight: FontWeight.bold),
                                 ),
-                                SizedBox(
-                                  height: 32,
-                                  width: 32,
-                                  child: CircularProgressIndicator(
-                                    value: _downloadProgress,
-                                  ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 4),
+
+                            // sub
+                            Text.rich(
+                              TextSpan(
+                                text:
+                                    '${widget.courseContentModel.contentSubtitleType}:  ',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall!
+                                    .copyWith(
+                                      fontSize: 12,
+                                    ),
+                                children: [
+                                  TextSpan(
+                                    text: widget
+                                        .courseContentModel.contentSubtitle,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelMedium!
+                                        .copyWith(),
+                                  )
+                                ],
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+
+                            const Divider(height: 8),
+
+                            //
+                            // title head
+                            Row(
+                              children: [
+                                //
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Upload on:',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelMedium!
+                                          .copyWith(color: Colors.grey),
+                                    ),
+
+                                    //time
+                                    Text(widget.courseContentModel.uploadDate,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelMedium),
+                                  ],
+                                ),
+
+                                const VerticalDivider(
+                                  thickness: 2,
+                                ),
+
+                                //
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Upload by:',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelMedium!
+                                          .copyWith(color: Colors.grey),
+                                    ),
+
+                                    //time
+                                    Text(widget.courseContentModel.uploader,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelMedium),
+                                  ],
                                 ),
                               ],
                             ),
-                          ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
 
-            // bookmarks
-            BookmarkButton(
-              contentId: widget.contentId,
-              courseContentModel: widget.courseContentModel,
+            // bookmark
+            Positioned(
+              top: 0,
+              right: 0,
+              child: BookmarkButton(
+                contentId: widget.contentId,
+                userModel: widget.userModel,
+                courseContentModel: widget.courseContentModel,
+              ),
             ),
+
+            // download button
+            if (downloadFileChecker(fileName: fileName))
+              const Positioned(
+                bottom: 0,
+                right: 0,
+                child: IconButton(
+                  onPressed: null,
+                  icon: Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.green,
+                    // size: 30,
+                  ),
+                ),
+              )
+            else
+              (_isLoading == false)
+                  ? Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: IconButton(
+                        onPressed: () async {
+                          setState(() => _isLoading = true);
+
+                          //
+                          await downloadFile(
+                              widget.courseContentModel.fileUrl, fileName);
+
+                          //
+                          setState(() => _isLoading = false);
+                        },
+                        icon: const Icon(
+                          Icons.downloading_rounded,
+                          color: Colors.red,
+                          // size: 30,
+                        ),
+                      ),
+                    )
+                  : Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: IconButton(
+                        onPressed: () async {
+                          //
+
+                          // cancelToken.cancel();
+                        },
+                        icon: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            const Icon(
+                              // Icons.clear,
+                              Icons.downloading_rounded,
+                              color: Colors.grey,
+                              size: 18,
+                            ),
+                            SizedBox(
+                              height: 25,
+                              width: 25,
+                              child: CircularProgressIndicator(
+                                value: _downloadProgress,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
           ],
         ),
       ),

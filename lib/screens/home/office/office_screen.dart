@@ -1,4 +1,4 @@
-import 'package:campus_assistant/screens/home/office/stuff_list.dart';
+import 'package:campus_assistant/screens/home/office/staff_list.dart';
 import 'package:flutter/material.dart';
 
 import '../../../models/user_model.dart';
@@ -18,12 +18,12 @@ class OfficeScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('CR & Office Stuff'),
+          title: const Text('CR & Office Staff'),
           centerTitle: true,
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Class Representative'),
-              Tab(text: 'Office Stuff'),
+              Tab(text: 'Office Staff'),
             ],
           ),
         ),

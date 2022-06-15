@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:campus_assistant/screens/study/upload/course_edit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '/models/course_model.dart';
 import '/models/user_model.dart';
+import '../../../utils/constants.dart';
 import '../course2_type_screen.dart';
 import 'course_info.dart';
 
@@ -14,12 +16,14 @@ class CourseCard extends StatelessWidget {
     required this.selectedYear,
     required this.id,
     required this.courseModel,
+    required this.selectedSession,
   }) : super(key: key);
 
   final UserModel userModel;
   final String selectedYear;
   final String id;
   final CourseModel courseModel;
+  final String selectedSession;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +33,31 @@ class CourseCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
+        onLongPress: userModel.role[UserRole.admin.name]
+            ? () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditCourse(
+                      university: userModel.university,
+                      department: userModel.department,
+                      selectedYear: selectedYear,
+                      id: id,
+                      courseModel: courseModel,
+                    ),
+                  ),
+                );
+
+                //todo: fix later
+                // DatabaseService.refUniversities
+                //     .doc(userModel.university)
+                //     .collection('Departments')
+                //     .doc(userModel.department)
+                //     .collection('Courses')
+                //     .doc(id)
+                //     .delete();
+              }
+            : null,
         onTap: () {
           //
           Navigator.push(
@@ -39,6 +68,7 @@ class CourseCard extends StatelessWidget {
                 selectedYear: selectedYear,
                 id: id,
                 courseModel: courseModel,
+                selectedSession: selectedSession,
               ),
             ),
           );
@@ -46,7 +76,7 @@ class CourseCard extends StatelessWidget {
 
         //
         child: SizedBox(
-          height: 150,
+          height: 140,
           child: Row(
             children: [
               //
@@ -90,7 +120,7 @@ class CourseCard extends StatelessWidget {
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -128,16 +158,19 @@ class CourseCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           courseInfo(
-                            'Course Code',
-                            courseModel.courseCode,
+                            context,
+                            title: 'Course Code',
+                            value: 'Psy ${courseModel.courseCode}',
                           ),
                           courseInfo(
-                            'Marks',
-                            courseModel.courseMarks,
+                            context,
+                            title: 'Marks',
+                            value: courseModel.courseMarks,
                           ),
                           courseInfo(
-                            'Credits',
-                            courseModel.courseCredits,
+                            context,
+                            title: 'Credits',
+                            value: courseModel.courseCredits,
                           ),
                         ],
                       ),

@@ -10,7 +10,7 @@ import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:multi_select_flutter/util/multi_select_list_type.dart';
 
 import '/database_service.dart';
-import '/models/course_content_model.dart';
+import '/models/content_model.dart';
 import '/models/course_model.dart';
 import '/models/user_model.dart';
 import '../../../utils/constants.dart';
@@ -35,16 +35,17 @@ class AddContent extends StatefulWidget {
   final int? chapterNo;
 
   @override
-  _AddContentState createState() => _AddContentState();
+  State<AddContent> createState() => _AddContentState();
 }
 
 class _AddContentState extends State<AddContent> {
   final GlobalKey<FormState> _formState = GlobalKey<FormState>();
-  List<String>? _selectedBatchList;
-  String _selectedStatus = 'Basic';
   final TextEditingController _contentTitleController = TextEditingController();
   final TextEditingController _contentSubtitleController =
       TextEditingController();
+
+  String _selectedStatus = 'Basic';
+  List<String>? _selectedSessionList;
 
   String? fileName;
   File? selectedFile;
@@ -52,7 +53,7 @@ class _AddContentState extends State<AddContent> {
 
   @override
   void initState() {
-    _selectedBatchList = kBatchList;
+    _selectedSessionList = kSessionList;
     super.initState();
   }
 
@@ -60,13 +61,12 @@ class _AddContentState extends State<AddContent> {
   void dispose() {
     _contentTitleController.dispose();
     _contentSubtitleController.dispose();
-    _selectedBatchList!.clear();
+    _selectedSessionList!.clear();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    print(_selectedBatchList);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -81,7 +81,7 @@ class _AddContentState extends State<AddContent> {
           //
           buildPathSection(
             year: widget.selectedYear,
-            courseCode: widget.courseModel.courseCode,
+            courseCode: 'Psy ${widget.courseModel.courseCode}',
             chapterNo: widget.chapterNo.toString(),
             courseType: widget.courseType,
           ),
@@ -167,7 +167,7 @@ class _AddContentState extends State<AddContent> {
 
                 const SizedBox(height: 16),
 
-                // batch list
+                // session list
                 MultiSelectDialogField(
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.black38),
@@ -175,24 +175,25 @@ class _AddContentState extends State<AddContent> {
                   ),
                   selectedColor: Colors.blueAccent.shade100,
                   selectedItemsTextStyle: const TextStyle(color: Colors.black),
-                  title: const Text('Accessible Batch List'),
-                  buttonText: const Text('Batch List'),
+                  title: const Text('Session List'),
+                  buttonText: const Text('Session List'),
                   buttonIcon: const Icon(Icons.arrow_drop_down),
-                  initialValue: _selectedBatchList,
-                  items: kBatchList.map((e) => MultiSelectItem(e, e)).toList(),
+                  initialValue: _selectedSessionList,
+                  items:
+                      kSessionList.map((e) => MultiSelectItem(e, e)).toList(),
                   listType: MultiSelectListType.CHIP,
                   onConfirm: (List<String> values) {
                     setState(() {
-                      _selectedBatchList = values;
-                      print('selected: $_selectedBatchList');
+                      _selectedSessionList = values;
                     });
                   },
                   validator: (values) => (values == null || values.isEmpty)
-                      ? "Select some batch"
+                      ? "Select session"
                       : null,
                 ),
 
                 const SizedBox(height: 8),
+
                 //
                 Row(
                   children: [
@@ -296,7 +297,7 @@ class _AddContentState extends State<AddContent> {
   UploadTask? putFileToFireStorage({required File file, required String name}) {
     if (selectedFile == null) return null;
 
-    var path = 'Study/${widget.selectedYear}/${widget.id}/${widget.id}/$name';
+    var path = '/${widget.courseType}/$name';
 
     try {
       final ref = FirebaseStorage.instance.ref(path);
@@ -404,17 +405,20 @@ class _AddContentState extends State<AddContent> {
     String uploadDate = DateFormat('dd MMM, yyyy').format(DateTime.now());
 
     //
-    CourseContentModel courseContentModel = CourseContentModel(
+    ContentModel courseContentModel = ContentModel(
       courseCode: widget.courseModel.courseCode,
       contentType: widget.courseType,
       lessonNo: widget.courseType == 'Notes' ? widget.chapterNo! : 1,
       status: _selectedStatus,
-      batchList: _selectedBatchList!,
+      sessionList: _selectedSessionList!,
       contentTitle: _contentTitleController.text.trim(),
       contentSubtitle: _contentSubtitleController.text.trim(),
       contentSubtitleType: getContentSubtitle(courseType: widget.courseType),
       uploadDate: uploadDate,
       fileUrl: fileUrl,
+      imageUrl: '',
+      uploader:
+          '${widget.userModel.name.split(' ').last}(${widget.userModel.session})',
     );
 
     //
@@ -495,7 +499,7 @@ Widget buildPathSection(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(Icons.keyboard_arrow_right_rounded),
-                  Text('Chapter ' + chapterNo!),
+                  Text('Chapter ${chapterNo!}'),
                 ],
               ),
             //courseType

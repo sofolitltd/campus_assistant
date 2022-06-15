@@ -2,15 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '/database_service.dart';
-import '/models/course_chapter_model.dart';
-import '/models/course_content_model.dart';
+import '/models/chapter_model.dart';
+import '/models/content_model.dart';
 import '/models/course_model.dart';
 import '/models/user_model.dart';
-import '/screens/study/upload/content_add.dart';
+import '/screens/study/upload/add_content.dart';
 import '/screens/study/widgets/bookmark_counter.dart';
 import '/screens/study/widgets/content_card.dart';
 
-class CourseNotesDetails extends StatelessWidget {
+class CourseNotesDetails extends StatefulWidget {
   const CourseNotesDetails({
     Key? key,
     required this.userModel,
@@ -26,8 +26,13 @@ class CourseNotesDetails extends StatelessWidget {
   final String id;
   final String courseType;
   final CourseModel courseModel;
-  final CourseChapterModel courseChapterModel;
+  final ChapterModel courseChapterModel;
 
+  @override
+  State<CourseNotesDetails> createState() => _CourseNotesDetailsState();
+}
+
+class _CourseNotesDetailsState extends State<CourseNotesDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,15 +40,45 @@ class CourseNotesDetails extends StatelessWidget {
         titleSpacing: 0,
         centerTitle: true,
         title: Text(
-            '${courseChapterModel.chapterNo}. ${courseChapterModel.chapterTitle}'),
+            '${widget.courseChapterModel.chapterNo}. ${widget.courseChapterModel.chapterTitle}'),
 
         // bookmark
-        actions: const [
-          BookmarkCounter(),
+        actions: [
+          BookmarkCounter(userModel: widget.userModel),
         ],
       ),
+      body: ChapterNotes(
+        userModel: widget.userModel,
+        selectedYear: widget.selectedYear,
+        id: widget.id,
+        courseChapterModel: widget.courseChapterModel,
+        courseModel: widget.courseModel,
+      ),
+    );
+  }
+}
 
-      // add content
+//
+class ChapterNotes extends StatelessWidget {
+  const ChapterNotes({
+    Key? key,
+    required this.userModel,
+    required this.selectedYear,
+    required this.id,
+    required this.courseChapterModel,
+    required this.courseModel,
+  }) : super(key: key);
+
+  final UserModel userModel;
+  final ChapterModel courseChapterModel;
+  final CourseModel courseModel;
+  final String selectedYear;
+  final String id;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // add notes
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
@@ -53,25 +88,21 @@ class CourseNotesDetails extends StatelessWidget {
                         userModel: userModel,
                         selectedYear: selectedYear,
                         id: id,
-                        courseType: courseType,
+                        courseType: 'Notes',
                         courseModel: courseModel,
                         chapterNo: courseChapterModel.chapterNo,
                       )));
         },
         child: const Icon(Icons.add),
       ),
-      //
+
       body: StreamBuilder<QuerySnapshot>(
           stream: DatabaseService.refUniversities
               .doc(userModel.university)
               .collection('Departments')
               .doc(userModel.department)
-              .collection('Study')
-              .doc('Courses')
-              .collection(selectedYear)
-              .doc(id)
-              .collection(courseType)
-              .where('batchList', arrayContains: userModel.batch)
+              .collection('Notes') // todo: need to fix
+              .where('sessionList', arrayContains: userModel.session)
               .where('lessonNo', isEqualTo: courseChapterModel.chapterNo)
               .where('status', isEqualTo: userModel.status)
               .snapshots(),
@@ -85,7 +116,7 @@ class CourseNotesDetails extends StatelessWidget {
             }
 
             if (snapshot.data!.size == 0) {
-              return Center(child: Text('No $courseType Found!'));
+              return const Center(child: Text('No notes found!'));
             }
 
             var data = snapshot.data!.docs;
@@ -98,13 +129,14 @@ class CourseNotesDetails extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               itemBuilder: (context, index) {
                 //model
-                CourseContentModel courseContentModel =
-                    CourseContentModel.fromJson(data[index]);
-                print(courseContentModel.status);
+                ContentModel courseContentModel =
+                    ContentModel.fromJson(data[index]);
+                // print(courseContentModel.status);
 
                 var contentId = data[index].id;
                 //
                 return ContentCard(
+                  userModel: userModel,
                   contentId: contentId,
                   courseContentModel: courseContentModel,
                 );

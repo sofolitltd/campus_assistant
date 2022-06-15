@@ -61,7 +61,11 @@ class CategoryCard extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: FloatingActionButton(
                 heroTag: routeName,
-                onPressed: () => Navigator.pushNamed(context, routeName),
+                onPressed: () => Navigator.pushNamed(
+                  context,
+                  routeName,
+                  arguments: args,
+                ),
                 backgroundColor: Colors.white,
                 child: const Icon(
                   Icons.arrow_forward_ios_rounded,

@@ -3,18 +3,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../database_service.dart';
-import '../../models/course_content_model.dart';
+import '../../models/content_model.dart';
 import '../../models/user_model.dart';
 import '../study/widgets/content_card.dart';
 
-class LibraryScreen extends StatefulWidget {
-  const LibraryScreen({Key? key}) : super(key: key);
+class ResearchScreen extends StatefulWidget {
+  const ResearchScreen({Key? key}) : super(key: key);
 
   @override
-  State<LibraryScreen> createState() => _LibraryScreenState();
+  State<ResearchScreen> createState() => _ResearchScreenState();
 }
 
-class _LibraryScreenState extends State<LibraryScreen> {
+class _ResearchScreenState extends State<ResearchScreen> {
   UserModel? userModel;
 
   //
@@ -42,10 +42,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Library'),
-      ),
-
       //
       body: (userModel == null)
           ? const Center(child: CircularProgressIndicator())
@@ -55,8 +51,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   .collection('Departments')
                   .doc(userModel!.department)
                   .collection('Study')
-                  .doc('Library')
-                  .collection('Books')
+                  .doc('Archive')
+                  .collection('Research')
                   .orderBy('courseCode')
                   .snapshots(),
               builder: (context, snapshot) {
@@ -82,12 +78,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   padding: const EdgeInsets.all(12),
                   itemBuilder: (context, index) {
                     //model
-                    CourseContentModel courseContentModel =
-                        CourseContentModel.fromJson(data[index]);
+                    ContentModel courseContentModel =
+                        ContentModel.fromJson(data[index]);
 
                     var contentId = data[index].id;
                     //
                     return ContentCard(
+                      userModel: userModel!,
                       contentId: contentId,
                       courseContentModel: courseContentModel,
                     );

@@ -4,9 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '/database_service.dart';
-import '/models/course_content_model.dart';
+import '/models/content_model.dart';
 import '/models/course_model.dart';
-import '/screens/study/upload/content_add.dart';
+import '/screens/study/upload/add_content.dart';
+import '../../utils/constants.dart';
 
 class CourseTypesDetails extends StatelessWidget {
   const CourseTypesDetails({
@@ -28,21 +29,23 @@ class CourseTypesDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       // add content
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => AddContent(
-                        userModel: userModel,
-                        selectedYear: selectedYear,
-                        id: id,
-                        courseType: courseType,
-                        courseModel: courseModel,
-                      )));
-        },
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: (userModel.role[UserRole.cr.name])
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => AddContent(
+                              userModel: userModel,
+                              selectedYear: selectedYear,
+                              id: id,
+                              courseType: courseType,
+                              courseModel: courseModel,
+                            )));
+              },
+              child: const Icon(Icons.add),
+            )
+          : null,
 
       //
       body: StreamBuilder<QuerySnapshot>(
@@ -50,12 +53,9 @@ class CourseTypesDetails extends StatelessWidget {
               .doc(userModel.university)
               .collection('Departments')
               .doc(userModel.department)
-              .collection('Study')
-              .doc('Courses')
-              .collection(selectedYear)
-              .doc(id)
               .collection(courseType)
-              .where('batchList', arrayContains: userModel.batch)
+              .where('courseCode', isEqualTo: courseModel.courseCode)
+              // .where('batchList', arrayContains: userModel.batch)
               .where('status', whereIn: ['Basic', userModel.status])
               // .where('lessonNo', isEqualTo: courseType.lessonNo)
               .snapshots(),
@@ -82,8 +82,8 @@ class CourseTypesDetails extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               itemBuilder: (context, index) {
                 //model
-                CourseContentModel courseContentModel =
-                    CourseContentModel.fromJson(data[index]);
+                ContentModel courseContentModel =
+                    ContentModel.fromJson(data[index]);
 
                 var contentId = data[index].id;
 
@@ -100,6 +100,7 @@ class CourseTypesDetails extends StatelessWidget {
                     //     contentId: contentId);
                   },
                   child: ContentCard(
+                      userModel: userModel,
                       contentId: contentId,
                       courseContentModel: courseContentModel),
                 );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 // light
 ThemeData lightThemeData(BuildContext context) {
   return ThemeData.light().copyWith(
+    visualDensity: VisualDensity.adaptivePlatformDensity,
     primaryColor: Theme.of(context).cardColor,
     appBarTheme: const AppBarTheme(
       elevation: 0,
@@ -40,6 +41,7 @@ ThemeData lightThemeData(BuildContext context) {
 // dark
 ThemeData darkThemeData(BuildContext context) {
   return ThemeData.dark().copyWith(
+    visualDensity: VisualDensity.adaptivePlatformDensity,
     appBarTheme: const AppBarTheme(
       elevation: 0,
       // centerTitle: true,

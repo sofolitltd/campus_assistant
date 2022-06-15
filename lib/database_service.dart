@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
-import 'models/course_chapter_model.dart';
-import 'models/course_content_model.dart';
+import 'models/chapter_model.dart';
+import 'models/content_model.dart';
 import 'models/course_model.dart';
 
 class DatabaseService {
@@ -22,10 +22,9 @@ class DatabaseService {
         .doc(university)
         .collection('Departments')
         .doc(department)
-        .collection('Study')
-        .doc('Courses')
-        .collection(year)
-        .add(courseModel.toJson());
+        .collection('Courses')
+        .doc()
+        .set(courseModel.toJson());
   }
 
   //
@@ -34,17 +33,13 @@ class DatabaseService {
     required department,
     required year,
     required String id,
-    required CourseChapterModel courseLessonModel,
+    required ChapterModel courseLessonModel,
   }) {
     //
     refUniversities
         .doc(university)
         .collection('Departments')
         .doc(department)
-        .collection('Study')
-        .doc('Courses')
-        .collection(year)
-        .doc(id)
         .collection('Chapters')
         .doc()
         .set(courseLessonModel.toJson());
@@ -57,37 +52,23 @@ class DatabaseService {
     required year,
     required String id,
     required String courseType,
-    required CourseContentModel courseContentModel,
+    required ContentModel courseContentModel,
   }) async {
+    var contentId = const Uuid().v4();
+
     //
     var ref = refUniversities
         .doc(university)
         .collection('Departments')
-        .doc(department)
-        .collection('Study');
-
-    var contentId = const Uuid().v4();
+        .doc(department);
 
     //
     await ref
-        .doc('Courses')
-        .collection(year)
-        .doc(id)
         .collection(courseType)
         .doc(contentId)
         .set(courseContentModel.toJson());
-
-    // add to library
-    if (courseType == 'Books') {
-      await ref
-          .doc('Library')
-          .collection('Books')
-          .doc(contentId)
-          .set(courseContentModel.toJson());
-    }
   }
 
-  //
   //
   static deleteCourseContent({
     required university,
@@ -101,21 +82,9 @@ class DatabaseService {
     var ref = refUniversities
         .doc(university)
         .collection('Departments')
-        .doc(department)
-        .collection('Study');
+        .doc(department);
 
     //
-    await ref
-        .doc('Courses')
-        .collection(year)
-        .doc(id)
-        .collection(courseType)
-        .doc(contentId)
-        .delete();
-
-    // add to library
-    if (courseType == 'Books') {
-      await ref.doc('Library').collection('Books').doc(contentId).delete();
-    }
+    await ref.collection(courseType).doc(contentId).delete();
   }
 }

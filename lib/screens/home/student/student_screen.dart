@@ -1,6 +1,7 @@
 import 'package:campus_assistant/models/student_model.dart';
 import 'package:campus_assistant/models/user_model.dart';
 import 'package:campus_assistant/screens/home/student/add_student.dart';
+import 'package:campus_assistant/utils/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -53,19 +54,26 @@ class StudentScreen extends StatelessWidget {
         ],
       ),
       //
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          //
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => AddStudent(
+      floatingActionButton: userModel.role[UserRole.cr.name]
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 24),
+              child: FloatingActionButton(
+                onPressed: () {
+                  //
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddStudent(
                         userModel: userModel,
                         selectedBatch: userModel.batch,
-                      )));
-        },
-        child: const Icon(Icons.add),
-      ),
+                      ),
+                    ),
+                  );
+                },
+                child: const Icon(Icons.add),
+              ),
+            )
+          : null,
 
       //
       body: StreamBuilder<QuerySnapshot>(
@@ -96,7 +104,8 @@ class StudentScreen extends StatelessWidget {
               itemBuilder: (BuildContext context, int index) {
                 StudentModel studentModel = StudentModel.fromJson(data[index]);
                 //
-                return StudentCard(studentModel: studentModel);
+                return StudentCard(
+                    userModel: userModel, studentModel: studentModel);
               },
             ),
           );

@@ -3,6 +3,7 @@ import 'package:campus_assistant/screens/dashboard/dashboard.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -189,6 +190,14 @@ class _LoginScreenState extends State<LoginScreen> {
         //       (route) => false,
         // );
 
+        //
+        // Obtain shared preferences.
+        final prefs = await SharedPreferences.getInstance();
+
+        prefs.setString('university', 'University of Chittagong');
+        prefs.setString('department', 'Department of Psychology');
+
+        //
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const DashboardScreen()),

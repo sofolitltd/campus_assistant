@@ -44,6 +44,15 @@ class Header extends StatelessWidget {
           //   },
           // ),
 
+          const Padding(
+            padding: EdgeInsets.only(top: 8.0, bottom: 4),
+            child: Text(
+              'Welcome back',
+              style: TextStyle(fontSize: 16),
+            ),
+          ),
+
+          // welcome
           Text(
             userName.toUpperCase(),
             style: const TextStyle(
@@ -51,12 +60,6 @@ class Header extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
             overflow: TextOverflow.ellipsis,
-          ),
-
-          // welcome
-          const Text(
-            'Welcome to our family',
-            style: TextStyle(fontSize: 16),
           ),
         ],
       ),

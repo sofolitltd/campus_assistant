@@ -31,7 +31,9 @@ class _AddStudentState extends State<AddStudent> {
   final TextEditingController _phoneController = TextEditingController();
 
   List hallList = [];
-  String? _selectedHall;
+  String _selectedHall = 'None';
+  String? _selectedBloodGroup;
+
   String _selectedOrderBy = kStudentStatus[0];
   bool _isLoading = false;
 
@@ -183,7 +185,7 @@ class _AddStudentState extends State<AddStudent> {
                 ),
                 onChanged: (String? value) {
                   setState(() {
-                    _selectedHall = value;
+                    _selectedHall = value!;
                   });
                 },
                 validator: (value) => value == null ? "Select your hall" : null,
@@ -202,34 +204,70 @@ class _AddStudentState extends State<AddStudent> {
 
               const SizedBox(height: 16),
 
-              // order by
-              DropdownButtonFormField(
-                isExpanded: true,
-                value: _selectedOrderBy,
-                hint: const Text('Student status'),
-                // isExpanded: true,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 18, horizontal: 8),
-                  prefixIcon: Icon(Icons.outbond_outlined),
+              //order by
+              ButtonTheme(
+                alignedDropdown: true,
+                child: DropdownButtonFormField(
+                  isExpanded: true,
+                  value: _selectedOrderBy,
+                  hint: const Text('Student status'),
+                  // isExpanded: true,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 18, horizontal: 8),
+                    prefixIcon: Icon(Icons.outbond_outlined),
+                  ),
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedOrderBy = value!;
+                    });
+                  },
+                  validator: (value) =>
+                      value == null ? "Select student status" : null,
+                  items: kStudentStatus.map((String val) {
+                    return DropdownMenuItem(
+                      value: val,
+                      child: Text(
+                        val,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    );
+                  }).toList(),
                 ),
-                onChanged: (String? value) {
-                  setState(() {
-                    _selectedOrderBy = value!;
-                  });
-                },
-                validator: (value) =>
-                    value == null ? "Select student status" : null,
-                items: kStudentStatus.map((String val) {
-                  return DropdownMenuItem(
-                    value: val,
-                    child: Text(
-                      val,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  );
-                }).toList(),
+              ),
+
+              const SizedBox(height: 16),
+
+              //blood
+              ButtonTheme(
+                alignedDropdown: true,
+                child: DropdownButtonFormField(
+                  value: _selectedBloodGroup,
+                  hint: const Text('Blood Group'),
+                  // isExpanded: true,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 18, horizontal: 4),
+                    prefixIcon: Icon(Icons.bloodtype_outlined),
+                  ),
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedBloodGroup = value;
+                    });
+                  },
+                  validator: (value) =>
+                      value == null ? "Select your blood group" : null,
+                  items: kBloodGroup.map((String val) {
+                    return DropdownMenuItem(
+                      value: val,
+                      child: Text(
+                        val,
+                      ),
+                    );
+                  }).toList(),
+                ),
               ),
 
               const SizedBox(height: 24),
@@ -248,13 +286,14 @@ class _AddStudentState extends State<AddStudent> {
                             StudentModel studentModel = StudentModel(
                               name: _nameController.text.trim(),
                               id: _idController.text.trim(),
-                              hall: _selectedHall!,
+                              hall: _selectedHall,
                               phone: _phoneController.text.isEmpty
                                   ? ''
                                   : _phoneController.text.trim(),
                               email: _emailController.text.isEmpty
                                   ? ''
                                   : _emailController.text.trim(),
+                              blood: _selectedBloodGroup.toString(),
                               imageUrl: '',
                               token: createToken(
                                   batch: widget.selectedBatch, id: id),

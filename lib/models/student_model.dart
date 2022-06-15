@@ -6,6 +6,7 @@ class StudentModel {
   final String phone;
   final String email;
   final String hall;
+  final String blood;
   final String imageUrl;
   final String token;
   final int orderBy;
@@ -16,6 +17,7 @@ class StudentModel {
     required this.phone,
     required this.email,
     required this.hall,
+    required this.blood,
     required this.imageUrl,
     required this.token,
     required this.orderBy,
@@ -27,6 +29,7 @@ class StudentModel {
           name: json['name']! as String,
           id: json['id']! as String,
           hall: json['hall']! as String,
+          blood: json['blood']! as String,
           phone: json['phone']! as String,
           email: json['email']! as String,
           imageUrl: json['imageUrl']! as String,
@@ -40,6 +43,7 @@ class StudentModel {
       'name': name,
       'id': id,
       'hall': hall,
+      'blood': blood,
       'phone': phone,
       'email': email,
       'imageUrl': imageUrl,

@@ -1,22 +1,20 @@
+import 'package:campus_assistant/models/notice_model.dart';
+import 'package:campus_assistant/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
 class UploadNotice extends StatefulWidget {
-  final String batch;
-  final String crName;
-  final String crImageUrl;
+  final UserModel userModel;
 
   const UploadNotice({
     Key? key,
-    required this.batch,
-    required this.crName,
-    required this.crImageUrl,
+    required this.userModel,
   }) : super(key: key);
 
   @override
-  _UploadNoticeState createState() => _UploadNoticeState();
+  State<UploadNotice> createState() => _UploadNoticeState();
 }
 
 class _UploadNoticeState extends State<UploadNotice> {
@@ -49,7 +47,7 @@ class _UploadNoticeState extends State<UploadNotice> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Upload Notice"),
+        title: Text(widget.userModel.batch),
         elevation: 0,
         titleSpacing: 0,
         actions: [
@@ -80,7 +78,7 @@ class _UploadNoticeState extends State<UploadNotice> {
               children: [
                 CircleAvatar(
                   minRadius: 24,
-                  backgroundImage: NetworkImage(widget.crImageUrl),
+                  backgroundImage: NetworkImage(widget.userModel.imageUrl),
                 ),
 
                 const SizedBox(width: 8),
@@ -89,18 +87,26 @@ class _UploadNoticeState extends State<UploadNotice> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.crName),
+                    Text(
+                      widget.userModel.name,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 2, horizontal: 4),
+                      padding: const EdgeInsets.only(
+                        left: 8,
+                        right: 8,
+                        top: 2,
+                        bottom: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(width: .2),
+                        borderRadius: BorderRadius.circular(2),
+                        // color: Colors.orangeAccent.shade100,
+                      ),
                       child: const Text(
                         'Class Representative',
                         style: TextStyle(fontSize: 12),
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(width: .5),
-                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ],
@@ -136,16 +142,24 @@ class _UploadNoticeState extends State<UploadNotice> {
   postMessage() {
     var time = DateFormat('dd-MM-yyyy hh:mm a').format(DateTime.now());
 
+    NoticeModel noticeModel = NoticeModel(
+      uploaderName: widget.userModel.name,
+      uploaderImage: widget.userModel.imageUrl,
+      batch: [widget.userModel.batch],
+      message: _messageController.text.toString(),
+      time: time,
+      seen: [],
+    );
+
+    //
     FirebaseFirestore.instance
-        .collection('Notice')
-        .doc(widget.batch)
-        .collection('Cr')
-        .add({
-      'crName': widget.crName,
-      'crImageUrl': widget.crImageUrl,
-      'time': time,
-      'message': _messageController.text.toString(),
-    }).then((value) {
+        .collection('Universities')
+        .doc(widget.userModel.university)
+        .collection('Departments')
+        .doc(widget.userModel.department)
+        .collection('Notifications')
+        .add(noticeModel.toJson())
+        .then((value) {
       Fluttertoast.showToast(msg: 'Post notice successfully');
       Navigator.pop(context);
     });

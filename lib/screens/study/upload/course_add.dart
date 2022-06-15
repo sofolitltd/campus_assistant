@@ -24,19 +24,21 @@ class AddCourse extends StatefulWidget {
 
 class _AddCourseState extends State<AddCourse> {
   final GlobalKey<FormState> _formState = GlobalKey<FormState>();
-  String? _selectedCourseCategory;
-  List<String>? _selectedBatchList;
+
   final TextEditingController _courseCodeController = TextEditingController();
   final TextEditingController _courseTitleController = TextEditingController();
   final TextEditingController _courseMarksController = TextEditingController();
   final TextEditingController _courseCreditsController =
       TextEditingController();
 
+  String? _selectedCourseCategory;
+  List<String>? _selectedSessionList;
+
   bool _isLoading = false;
 
   @override
   void initState() {
-    _selectedBatchList = kBatchList;
+    _selectedSessionList = kSessionList;
     super.initState();
   }
 
@@ -185,26 +187,29 @@ class _AddCourseState extends State<AddCourse> {
 
                   const SizedBox(height: 16),
 
-                  // batch list
+                  // session list
                   MultiSelectDialogField(
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.black38),
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    title: const Text('Accessible Batch List'),
-                    buttonText: const Text('Batch List'),
+                    selectedColor: Colors.blueAccent.shade100,
+                    selectedItemsTextStyle:
+                        const TextStyle(color: Colors.black),
+                    title: const Text('Session List'),
+                    buttonText: const Text('Session List'),
                     buttonIcon: const Icon(Icons.arrow_drop_down),
-                    initialValue: _selectedBatchList,
+                    initialValue: _selectedSessionList,
                     items:
-                        kBatchList.map((e) => MultiSelectItem(e, e)).toList(),
+                        kSessionList.map((e) => MultiSelectItem(e, e)).toList(),
                     listType: MultiSelectListType.CHIP,
                     onConfirm: (List<String> values) {
                       setState(() {
-                        _selectedBatchList = values;
+                        _selectedSessionList = values;
                       });
                     },
                     validator: (values) => (values == null || values.isEmpty)
-                        ? "Select some batch"
+                        ? "Select session"
                         : null,
                   ),
 
@@ -228,22 +233,23 @@ class _AddCourseState extends State<AddCourse> {
                             onPressed: () async {
                               if (_formState.currentState!.validate()) {
                                 setState(() => _isLoading = true);
+
                                 //
                                 CourseModel courseModel = CourseModel(
                                   courseYear: widget.selectedYear,
                                   courseCategory: _selectedCourseCategory!,
-                                  courseCode: 'Psy ' +
-                                      _courseCodeController.text.trim(),
+                                  courseCode: _courseCodeController.text.trim(),
                                   courseTitle:
                                       _courseTitleController.text.trim(),
                                   courseCredits:
                                       _courseCreditsController.text.trim(),
                                   courseMarks:
                                       _courseMarksController.text.trim(),
-                                  batchList: _selectedBatchList!,
+                                  sessionList: _selectedSessionList!,
                                   imageUrl: '',
                                 );
 
+                                //
                                 await DatabaseService.addCourse(
                                   university: widget.university,
                                   department: widget.department,
@@ -258,6 +264,7 @@ class _AddCourseState extends State<AddCourse> {
                                 setState(() => _isLoading = false);
 
                                 //
+                                if (!mounted) return;
                                 Navigator.pop(context);
                               }
                             },

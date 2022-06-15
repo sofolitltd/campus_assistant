@@ -1,4 +1,4 @@
-import 'package:campus_assistant/screens/liberary/library.dart';
+import 'package:campus_assistant/screens/archive/archieve_screen.dart';
 import 'package:flutter/material.dart';
 
 import '/screens/home/home.dart';
@@ -14,8 +14,24 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
+// getRef() async {
+//   final prefs = await SharedPreferences.getInstance();
+//   // Obtain shared preferences.
+//
+//   var un = prefs.getString('university');
+//   prefs.getString('department');
+//   print('share: $un');
+//   return un;
+// }
+
 class _DashboardScreenState extends State<DashboardScreen> {
   int? _currentPageIndex = 0;
+
+  // @override
+  // initState() {
+  //   getRef();
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +57,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           NavigationDestination(
             selectedIcon: Icon(Icons.photo_library_rounded),
             icon: Icon(Icons.photo_library_outlined),
-            label: 'Library',
+            label: 'Archive',
           ),
           NavigationDestination(
             selectedIcon: Icon(Icons.person),
@@ -60,7 +76,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   List screensList = const [
     HomeScreen(),
     CourseScreen(),
-    LibraryScreen(),
+    ArchiveScreen(),
     ProfileScreen(),
   ];
 }

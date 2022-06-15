@@ -26,6 +26,12 @@ dependencies:
   share_plus: ^4.0.4
   provider: ^6.0.2
   uuid: ^3.0.6
+  youtube_player_flutter: ^8.1.0
+  firebase_messaging: ^11.4.1
+  shared_preferences: ^2.0.15
+  intl: ^0.17.0
+  image_cropper: ^2.0.3
+  image_picker: ^0.8.5+3
 
 dev_dependencies:
   flutter_test:
