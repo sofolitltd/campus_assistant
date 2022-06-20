@@ -3,10 +3,10 @@ import 'package:campus_assistant/screens/study/upload/chapter_edit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '/database_service.dart';
 import '/models/chapter_model.dart';
 import '/models/course_model.dart';
 import '/screens/study/upload/chapter_add.dart';
+import '../../services/database_service.dart';
 import '../../utils/constants.dart';
 import 'course4_notes_details.dart';
 

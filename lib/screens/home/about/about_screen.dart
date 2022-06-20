@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -36,42 +38,64 @@ class AboutScreen extends StatelessWidget {
 
             var data = snapshot.data;
 
-            return Column(
-              children: [
-                //
-                Stack(
-                  alignment: Alignment.bottomLeft,
-                  children: [
-                    Image.network(
-                      data!.get('imageUrl'),
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: 200,
-                    ),
-
-                    //
-                    Container(
-                      width: double.infinity,
-                      color: Colors.grey.shade100.withOpacity(.7),
-                      padding: const EdgeInsets.all(16),
-                      child: Text(
-                        data.id,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge!
-                            .copyWith(fontWeight: FontWeight.bold),
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  //
+                  Stack(
+                    alignment: Alignment.bottomLeft,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 200,
+                        color: Colors.grey.shade100,
+                        child: CachedNetworkImage(
+                          imageUrl: data!.get('imageUrl'),
+                          fadeInDuration: const Duration(milliseconds: 500),
+                          imageBuilder: (context, imageProvider) => Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              image: DecorationImage(
+                                image: imageProvider,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          progressIndicatorBuilder:
+                              (context, url, downloadProgress) =>
+                                  const CupertinoActivityIndicator(),
+                          errorWidget: (context, url, error) => Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.grey.shade100,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                //image
+                      //
+                      Container(
+                        width: double.infinity,
+                        color: Colors.grey.shade100.withOpacity(.7),
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          data.id,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge!
+                              .copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                  //image
 
-                //
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(data.get('about')),
-                )
-              ],
+                  //
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(data.get('about')),
+                  )
+                ],
+              ),
             );
           }),
     );

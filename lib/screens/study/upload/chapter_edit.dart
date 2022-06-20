@@ -9,7 +9,7 @@ import '/models/chapter_model.dart';
 import '/models/course_model.dart';
 import '/models/user_model.dart';
 import '/utils/constants.dart';
-import '../../../database_service.dart';
+import '../../../services/database_service.dart';
 
 class EditChapter extends StatefulWidget {
   const EditChapter({

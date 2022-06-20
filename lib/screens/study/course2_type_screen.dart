@@ -38,7 +38,7 @@ class _CourseTypeScreenState extends State<CourseTypeScreen> {
           titleSpacing: 0,
           centerTitle: true,
           title: Text(
-            'Psy ${widget.courseModel.courseCode} - ${widget.courseModel.courseTitle}',
+            '${widget.courseModel.courseCode} - ${widget.courseModel.courseTitle}',
           ),
 
           // tab bar

@@ -30,46 +30,47 @@ class _CourseScreen2State extends State<CourseScreen2> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text(widget.selectedYear),
-        ),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(widget.selectedYear),
+      ),
 
-        // add course
-        floatingActionButton: (widget.userModel.role[UserRole.admin.name])
-            ? FloatingActionButton(
-                onPressed: () async {
-                  //
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddCourse(
-                        university: widget.university,
-                        department: widget.department,
-                        selectedYear: widget.selectedYear,
-                      ),
+      // add course
+      floatingActionButton: (widget.userModel.role[UserRole.admin.name])
+          ? FloatingActionButton(
+              onPressed: () async {
+                //
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddCourse(
+                      university: widget.university,
+                      department: widget.department,
+                      selectedYear: widget.selectedYear,
                     ),
-                  );
-                },
-                child: const Icon(Icons.add),
-              )
-            : null,
-
-        // course list
-        body: ListView(
-            padding: const EdgeInsets.only(
-              left: 8,
-              right: 8,
-            ),
-            children: kCourseCategory
-                .map(
-                  (courseCategory) => CourseList(
-                    courseCategory: courseCategory,
-                    userModel: widget.userModel,
-                    selectedYear: widget.selectedYear,
-                    selectedSession: widget.selectedSession,
                   ),
-                )
-                .toList()));
+                );
+              },
+              child: const Icon(Icons.add),
+            )
+          : null,
+
+      // course list
+      body: ListView(
+          padding: const EdgeInsets.only(
+            left: 8,
+            right: 8,
+          ),
+          children: kCourseCategory
+              .map(
+                (courseCategory) => CourseList(
+                  courseCategory: courseCategory,
+                  userModel: widget.userModel,
+                  selectedYear: widget.selectedYear,
+                  selectedSession: widget.selectedSession,
+                ),
+              )
+              .toList()),
+    );
   }
 }

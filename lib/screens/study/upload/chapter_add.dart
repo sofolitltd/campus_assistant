@@ -4,11 +4,11 @@ import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:multi_select_flutter/util/multi_select_list_type.dart';
 
-import '/database_service.dart';
 import '/models/chapter_model.dart';
 import '/models/course_model.dart';
 import '/models/user_model.dart';
 import '/utils/constants.dart';
+import '../../../services/database_service.dart';
 
 class AddChapter extends StatefulWidget {
   const AddChapter({

@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "317190642822",
+    "project_id": "campus-assistant-bd",
+    "storage_bucket": "campus-assistant-bd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:317190642822:android:c276161f6bc01e295cc507",
+        "android_client_info": {
+          "package_name": "com.example.campus_assistant"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "317190642822-7lc0jnd4rnu960j1kr5ao2mvrogis2ic.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDB1HyE6TECSrUKp6DR8QUoaKUhy2CLig4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "317190642822-7lc0jnd4rnu960j1kr5ao2mvrogis2ic.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:317190642822:android:9d13c8357c278a765cc507",
+        "android_client_info": {
+          "package_name": "com.sofolit.campus_assistant_admin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "317190642822-7lc0jnd4rnu960j1kr5ao2mvrogis2ic.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDB1HyE6TECSrUKp6DR8QUoaKUhy2CLig4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "317190642822-7lc0jnd4rnu960j1kr5ao2mvrogis2ic.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

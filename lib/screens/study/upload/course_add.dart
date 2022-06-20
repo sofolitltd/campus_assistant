@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 
-import '/database_service.dart';
 import '/models/course_model.dart';
+import '../../../services/database_service.dart';
 
 class AddCourse extends StatefulWidget {
   const AddCourse({
@@ -111,14 +111,13 @@ class _AddCourseState extends State<AddCourse> {
                       Expanded(
                         child: TextFormField(
                           controller: _courseCodeController,
-                          maxLength: 3,
-                          keyboardType: TextInputType.number,
+                          keyboardType: TextInputType.text,
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             labelText: 'Course Code',
-                            hintText: '101',
-                            counterText: '',
+                            hintText: 'Psy 101',
                           ),
+                          textCapitalization: TextCapitalization.words,
                           validator: (value) =>
                               value!.isEmpty ? 'Enter Course Code' : null,
                         ),

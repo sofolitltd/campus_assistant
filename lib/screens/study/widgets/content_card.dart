@@ -101,17 +101,44 @@ class _ContentCardState extends State<ContentCard> {
                   //
                   Expanded(
                     flex: 3,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: widget.courseContentModel.imageUrl.isEmpty
-                          ? Image.asset(
-                              'assets/images/placeholder.jpg',
-                              fit: BoxFit.cover,
-                            )
-                          : Image.network(
-                              widget.courseContentModel.imageUrl,
-                              fit: BoxFit.cover,
-                            ),
+                    child: Stack(
+                      alignment: Alignment.bottomLeft,
+                      children: [
+                        //
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: widget.courseContentModel.imageUrl.isEmpty
+                              ? Image.asset(
+                                  'assets/images/placeholder.jpg',
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.network(
+                                  widget.courseContentModel.imageUrl,
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+
+                        //
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 2,
+                            horizontal: 6,
+                          ),
+                          margin: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.yellow,
+                            border: Border.all(color: Colors.white, width: .85),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Text(
+                            widget.courseContentModel.courseCode,
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium!
+                                .copyWith(color: Colors.black),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 
@@ -126,6 +153,7 @@ class _ContentCardState extends State<ContentCard> {
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             //title
                             ConstrainedBox(
@@ -146,37 +174,41 @@ class _ContentCardState extends State<ContentCard> {
                               ),
                             ),
 
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 2),
 
                             // sub
-                            Text.rich(
-                              TextSpan(
-                                text:
-                                    '${widget.courseContentModel.contentSubtitleType}:  ',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall!
-                                    .copyWith(
-                                      fontSize: 12,
-                                    ),
-                                children: [
-                                  TextSpan(
-                                    text: widget
-                                        .courseContentModel.contentSubtitle,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelMedium!
-                                        .copyWith(),
-                                  )
-                                ],
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                minHeight: 30,
                               ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+                              child: Text.rich(
+                                TextSpan(
+                                  text:
+                                      '${widget.courseContentModel.contentSubtitleType}:  ',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall!
+                                      .copyWith(
+                                        fontSize: 12,
+                                      ),
+                                  children: [
+                                    TextSpan(
+                                      text: widget
+                                          .courseContentModel.contentSubtitle,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelMedium!
+                                          .copyWith(),
+                                    )
+                                  ],
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
 
-                            const Divider(height: 8),
+                            const Divider(height: 6),
 
-                            //
                             // title head
                             Row(
                               children: [
@@ -216,7 +248,7 @@ class _ContentCardState extends State<ContentCard> {
                                           .copyWith(color: Colors.grey),
                                     ),
 
-                                    //time
+                                    //uploader
                                     Text(widget.courseContentModel.uploader,
                                         style: Theme.of(context)
                                             .textTheme

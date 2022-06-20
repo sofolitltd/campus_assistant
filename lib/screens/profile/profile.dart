@@ -1,3 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:campus_assistant/screens/home/notice/notice_group.dart';
+import 'package:campus_assistant/screens/study/course6_bookmarks.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -75,10 +78,10 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
 
           //
-          StreamBuilder<QuerySnapshot>(
+          StreamBuilder<DocumentSnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('Users')
-                  .where('email', isEqualTo: currentUser!.email)
+                  .doc(currentUser!.uid)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
@@ -88,18 +91,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                var docs = snapshot.data!.docs;
+                var docs = snapshot.data!;
+                UserModel userModel = UserModel.fromJson(docs);
 
                 //
-                return ListView.builder(
-                    itemCount: docs.length,
-                    itemBuilder: (context, index) {
-                      UserModel userModel = UserModel.fromJson(docs[index]);
-
-                      //
-                      return profileCard(context, userModel);
-                    });
-                //
+                return profileCard(context, userModel);
               }),
         ],
       ),
@@ -125,6 +121,13 @@ class _ProfileScreenState extends State<ProfileScreen>
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(8),
+                  boxShadow: const [
+                    BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 6,
+                        spreadRadius: 3,
+                        offset: Offset(2, 1)),
+                  ],
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -141,9 +144,39 @@ class _ProfileScreenState extends State<ProfileScreen>
                           decoration: BoxDecoration(
                             color: Colors.grey.shade200,
                             borderRadius: BorderRadius.circular(8),
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(userModel.imageUrl),
+                          ),
+                          child: CachedNetworkImage(
+                            imageUrl: userModel.imageUrl,
+                            fadeInDuration: const Duration(milliseconds: 500),
+                            imageBuilder: (context, imageProvider) => Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                image: DecorationImage(
+                                  image: imageProvider,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            progressIndicatorBuilder:
+                                (context, url, downloadProgress) => Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                image: const DecorationImage(
+                                  image: AssetImage(
+                                      'assets/images/pp_placeholder.png'),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                image: const DecorationImage(
+                                  image: AssetImage(
+                                      'assets/images/pp_placeholder.png'),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -275,7 +308,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           ],
         ),
 
-        //
+        // contact
         Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
           child: Column(
@@ -370,7 +403,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
               ),
 
-              //
+              // content
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 minVerticalPadding: 0,
@@ -386,99 +419,71 @@ class _ProfileScreenState extends State<ProfileScreen>
                     color: Colors.white,
                   ),
                 ),
-                title: const Text('Help and Feedback'),
-                subtitle: const Text('Reach us with your feedback'),
+                title: const Text('Essentials'),
+                subtitle: const Text(' Notice Group, Bookmarks '),
               ),
 
               //
-              Container(
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    //
-                    GestureDetector(
-                      onTap: () {},
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Feedback on Facebook',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .copyWith(fontWeight: FontWeight.w600),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Card(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  elevation: 0,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //
+                      ListTile(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  NoticeGroup(userModel: userModel),
                             ),
-                            const Icon(
-                              Icons.arrow_forward_ios_outlined,
-                              size: 16,
-                            ),
-                          ],
+                          );
+                        },
+                        title: Text(
+                          'Notice Groups',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        trailing: const Icon(
+                          Icons.arrow_forward_ios_outlined,
+                          size: 16,
                         ),
                       ),
-                    ),
-                    const Divider(),
-                    //
-                    GestureDetector(
-                      onTap: () {},
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            //contact us
 
-                            Text(
-                              'Contact Us',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .copyWith(fontWeight: FontWeight.w600),
+                      const Divider(height: 1),
+
+                      ListTile(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  CourseBookMarks(userModel: userModel),
                             ),
-                            const Icon(
-                              Icons.arrow_forward_ios_outlined,
-                              size: 16,
-                            ),
-                          ],
+                          );
+                        },
+                        title: Text(
+                          'Bookmarks',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        trailing: const Icon(
+                          Icons.arrow_forward_ios_outlined,
+                          size: 16,
                         ),
                       ),
-                    ),
-
-                    const Divider(),
-                    //
-                    GestureDetector(
-                      onTap: () {},
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            //rate us
-
-                            Text(
-                              'Rate Us',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const Icon(
-                              Icons.arrow_forward_ios_outlined,
-                              size: 16,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
+                      //
+                    ],
+                  ),
                 ),
               ),
             ],

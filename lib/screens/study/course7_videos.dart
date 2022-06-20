@@ -4,10 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-import '../../database_service.dart';
 import '../../models/chapter_model.dart';
 import '../../models/course_model.dart';
 import '../../models/user_model.dart';
+import '../../services/database_service.dart';
 import '../../utils/constants.dart';
 import '../../widgets/open_app.dart';
 

@@ -15,6 +15,18 @@ class OpenApp {
     }
   }
 
+  static openPdf(String path) async {
+    var url = Uri.parse(path);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(
+        url,
+        mode: LaunchMode.inAppWebView,
+      );
+    } else {
+      print('error');
+    }
+  }
+
   //
   static withNumber(number) async {
     var url = Uri(scheme: 'tel', path: number);

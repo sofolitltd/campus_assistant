@@ -2,9 +2,9 @@ import 'package:campus_assistant/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '/database_service.dart';
 import '/models/course_model.dart';
 import '/widgets/headline.dart';
+import '../../../services/database_service.dart';
 import 'course_card.dart';
 
 class CourseList extends StatelessWidget {

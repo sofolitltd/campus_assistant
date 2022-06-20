@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -126,12 +127,26 @@ class _EditProfileState extends State<EditProfile> {
                           color: Colors.white,
                         ),
                         child: _pickedImage == null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                child: Image.network(
-                                  widget.userModel.imageUrl,
-                                  fit: BoxFit.cover,
+                            ? CachedNetworkImage(
+                                imageUrl: widget.userModel.imageUrl,
+                                fadeInDuration:
+                                    const Duration(milliseconds: 500),
+                                imageBuilder: (context, imageProvider) =>
+                                    CircleAvatar(
+                                  backgroundImage: imageProvider,
+                                  radius: 120,
                                 ),
+                                progressIndicatorBuilder: (context, url,
+                                        downloadProgress) =>
+                                    const CircleAvatar(
+                                        radius: 120,
+                                        backgroundImage: AssetImage(
+                                            'assets/images/pp_placeholder.png')),
+                                errorWidget: (context, url, error) =>
+                                    const CircleAvatar(
+                                        radius: 120,
+                                        backgroundImage: AssetImage(
+                                            'assets/images/pp_placeholder.png')),
                               )
                             : ClipRRect(
                                 borderRadius: BorderRadius.circular(100),

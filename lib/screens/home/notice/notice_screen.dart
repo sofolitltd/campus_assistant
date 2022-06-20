@@ -1,12 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:campus_assistant/models/notice_model.dart';
-import 'package:campus_assistant/screens/home/notice/notice_by_batch.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
 import '/models/user_model.dart';
-import '/utils/constants.dart';
 import 'notice_details_screen.dart';
 
 enum ActionsList { edit, delete, cancel }
@@ -26,25 +24,6 @@ class NoticeScreen extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
       ),
-
-      // add notice
-
-      floatingActionButton: userModel.role[UserRole.cr.name]
-          ? FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => NoticeByBatch(
-                      userModel: userModel,
-                    ),
-                  ),
-                );
-              },
-              child: const Icon(Icons.add),
-            )
-          : null,
-
       body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection('Universities')
@@ -74,7 +53,7 @@ class NoticeScreen extends StatelessWidget {
                     separatorBuilder: (context, index) =>
                         const SizedBox(height: 2),
                     itemBuilder: (BuildContext context, int index) {
-//
+                      //
                       var notice = data[index];
                       NoticeModel noticeModel = NoticeModel.fromJson(notice);
 
@@ -84,9 +63,11 @@ class NoticeScreen extends StatelessWidget {
                         child: ListTile(
                           onTap: () async {
                             //
-                            if (!noticeModel.seen.contains(userModel.id)) {
+                            if (!noticeModel.seen.contains(userModel.uid)) {
                               var seenList = noticeModel.seen;
-                              seenList.add(userModel.id);
+                              seenList.add(userModel.uid);
+
+                              //
                               FirebaseFirestore.instance
                                   .collection('Universities')
                                   .doc(userModel.university)
@@ -101,22 +82,40 @@ class NoticeScreen extends StatelessWidget {
 
                             //
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => NoticeDetailsScreen(
-                                          noticeModel: noticeModel,
-                                          userModel: userModel,
-                                        )));
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => NoticeDetailsScreen(
+                                  noticeModel: noticeModel,
+                                  userModel: userModel,
+                                ),
+                              ),
+                            );
                           },
-                          selected: noticeModel.seen.contains(userModel.id)
+                          selected: noticeModel.seen.contains(userModel.uid)
                               ? false
                               : true,
                           selectedTileColor:
                               Colors.blueAccent.shade100.withOpacity(.2),
                           // image
-                          leading: CircleAvatar(
-                            backgroundImage:
-                                NetworkImage(noticeModel.uploaderImage),
+                          leading: CachedNetworkImage(
+                            imageUrl: noticeModel.uploaderImage,
+                            fadeInDuration: const Duration(milliseconds: 500),
+                            imageBuilder: (context, imageProvider) =>
+                                CircleAvatar(
+                              backgroundImage: imageProvider,
+                              // radius: 120,
+                            ),
+                            progressIndicatorBuilder: (context, url,
+                                    downloadProgress) =>
+                                const CircleAvatar(
+                                    // radius: 120,
+                                    backgroundImage: AssetImage(
+                                        'assets/images/pp_placeholder.png')),
+                            errorWidget: (context, url, error) =>
+                                const CircleAvatar(
+                                    // radius: 120,
+                                    backgroundImage: AssetImage(
+                                        'assets/images/pp_placeholder.png')),
                           ),
 
                           //name
@@ -151,61 +150,6 @@ class NoticeScreen extends StatelessWidget {
                     },
                   );
           }),
-    );
-  }
-
-  //
-  // buildBottomModal(BuildContext context, QueryDocumentSnapshot notice) {
-  //   return Container(
-  //     padding: const EdgeInsets.symmetric(vertical: 16),
-  //     child: Column(
-  //       mainAxisSize: MainAxisSize.min,
-  //       children: [
-  //         // edit  post
-  //         ListTile(
-  //             onTap: () async {
-  //               await Navigator.pushReplacement(
-  //                 context,
-  //                 MaterialPageRoute(
-  //                   builder: (context) => UploadNoticeEdit(
-  //                     batch: batch!,
-  //                     crName: notice.get('crName'),
-  //                     crImageUrl: notice.get('crImageUrl'),
-  //                     message: notice.get('message'),
-  //                     messageId: notice.id,
-  //                   ),
-  //                 ),
-  //               );
-  //             },
-  //             leading: const Icon(Icons.edit),
-  //             title: const Text('Edit')),
-  //
-  //         //delete post
-  //         ListTile(
-  //             onTap: () {
-  //               deletePost(context, currentBatch: batch!, noticeId: notice.id);
-  //             },
-  //             leading: const Icon(Icons.delete),
-  //             title: const Text('Delete')),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  //delete post
-  deletePost(BuildContext context,
-      {required String currentBatch, required String noticeId}) async {
-    await FirebaseFirestore.instance
-        .collection('Notice')
-        .doc(currentBatch)
-        .collection('Cr')
-        .doc(noticeId)
-        .delete()
-        .then(
-      (value) {
-        Fluttertoast.showToast(msg: 'Post delete successfully');
-        Navigator.pop(context);
-      },
     );
   }
 }

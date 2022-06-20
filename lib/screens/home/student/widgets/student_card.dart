@@ -1,12 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:campus_assistant/models/student_model.dart';
-import 'package:campus_assistant/utils/constants.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '/models/student_model.dart';
+import '/utils/constants.dart';
 import '../../../../models/user_model.dart';
 import '../../../../widgets/open_app.dart';
 import '../../widgets/header.dart';
@@ -168,13 +169,14 @@ class StudentCard extends StatelessWidget {
                       if (userModel.role[UserRole.cr.name] &&
                           studentModel.phone.isNotEmpty)
                         IconButton(
-                            onPressed: () async {
-                              await OpenApp.withNumber(studentModel.phone);
-                            },
-                            icon: const Icon(
-                              Icons.call_outlined,
-                              color: Colors.green,
-                            )),
+                          onPressed: () async {
+                            await OpenApp.withNumber(studentModel.phone);
+                          },
+                          icon: const Icon(
+                            Icons.call_outlined,
+                            color: Colors.green,
+                          ),
+                        ),
                     ],
                   ),
                 )
@@ -293,12 +295,21 @@ class StudentCard extends StatelessWidget {
                                   TextButton(
                                       onPressed: () async {
                                         //
-                                        await ref.doc(studentModel.id).update({
+                                        await FirebaseFirestore.instance
+                                            .collection('Universities')
+                                            .doc(userModel.university)
+                                            .collection('Departments')
+                                            .doc(userModel.department)
+                                            .collection('Students')
+                                            .doc('Batch List')
+                                            .collection(userModel.batch)
+                                            .doc(studentModel.id)
+                                            .update({
                                           'token': createToken(
                                               batch: userModel.batch,
                                               id: studentModel.id),
-                                        }).then(
-                                            (value) => Navigator.pop(context));
+                                        }).then((value) =>
+                                                Navigator.pop(context));
                                       },
                                       child: const Text('Generate')),
                                 ],

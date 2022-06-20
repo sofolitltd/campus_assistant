@@ -251,7 +251,6 @@ class BatchStudentCard extends StatelessWidget {
                       const SizedBox(width: 8),
 
                       //
-
                       (studentModel.token != 'USED')
                           ? GestureDetector(
                               onTap: () {
@@ -292,7 +291,14 @@ class BatchStudentCard extends StatelessWidget {
                                       TextButton(
                                           onPressed: () async {
                                             //
-                                            await ref
+                                            await FirebaseFirestore.instance
+                                                .collection('Universities')
+                                                .doc(userModel.university)
+                                                .collection('Departments')
+                                                .doc(userModel.department)
+                                                .collection('Students')
+                                                .doc('Batch List')
+                                                .collection(selectedBatch)
                                                 .doc(studentModel.id)
                                                 .update({
                                               'token': createToken(
@@ -334,8 +340,7 @@ class BatchStudentCard extends StatelessWidget {
                           PopupMenuItem(
                               value: 1,
                               onTap: () {
-                                print('object');
-
+                                //
                                 Future(() =>
                                     //
                                     Navigator.push(

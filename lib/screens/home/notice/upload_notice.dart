@@ -1,9 +1,12 @@
-import 'package:campus_assistant/models/notice_model.dart';
-import 'package:campus_assistant/models/user_model.dart';
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+
+import '/models/notice_model.dart';
+import '/models/user_model.dart';
 
 class UploadNotice extends StatefulWidget {
   final UserModel userModel;
@@ -18,9 +21,10 @@ class UploadNotice extends StatefulWidget {
 }
 
 class _UploadNoticeState extends State<UploadNotice> {
-  bool isButtonActive = false;
   final TextEditingController _messageController = TextEditingController();
+  bool isButtonActive = false;
   String counter = '';
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -70,9 +74,13 @@ class _UploadNoticeState extends State<UploadNotice> {
 
       //
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         child: ListView(
           children: [
+            if (isLoading) const LinearProgressIndicator(),
+
+            const SizedBox(height: 16),
+
             //admin profile
             Row(
               children: [
@@ -140,6 +148,8 @@ class _UploadNoticeState extends State<UploadNotice> {
 
   //
   postMessage() {
+    setState(() => isLoading = true);
+
     var time = DateFormat('dd-MM-yyyy hh:mm a').format(DateTime.now());
 
     NoticeModel noticeModel = NoticeModel(
@@ -159,9 +169,67 @@ class _UploadNoticeState extends State<UploadNotice> {
         .doc(widget.userModel.department)
         .collection('Notifications')
         .add(noticeModel.toJson())
-        .then((value) {
-      Fluttertoast.showToast(msg: 'Post notice successfully');
+        .then((value) async {
+      //
+      await FirebaseFirestore.instance
+          .collection("Users")
+          .where('batch', isEqualTo: widget.userModel.batch)
+          .get()
+          .then((value) async {
+        for (var element in value.docs) {
+          var token = element.get('deviceToken');
+          print(token);
+
+          //
+          await sendPushMessage(
+            token: token,
+            title: widget.userModel.name,
+            body: _messageController.text,
+          );
+        }
+      });
+
+      //
+      if (!mounted) return;
       Navigator.pop(context);
+
+      //
+      // Fluttertoast.showToast(msg: 'Post notice successfully');
+
+      //
+      setState(() => isLoading = false);
     });
+  }
+
+  //
+  sendPushMessage({
+    required String token,
+    required String title,
+    required String body,
+  }) async {
+    try {
+      await http.post(
+        Uri.parse('https://fcm.googleapis.com/fcm/send'),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization':
+              'key=AAAASdoJHIY:APA91bGsG2MPE-OASD4rq-YGpbdoVE_8HnVsC_hOPxStioi2WoPXVVOvC0vJqxRBP9UHFbSeIATgCSmAcGBZKQg_z2Gr2Ia4-HqKTHaYCavsD0Z0lAAUYPzMKUAc8v2nelf-HuU1tWqK',
+        },
+        body: jsonEncode(
+          <String, dynamic>{
+            'notification': <String, dynamic>{'title': title, 'body': body},
+            'priority': 'high',
+            'data': <String, dynamic>{
+              'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+              'id': '1',
+              'status': 'done'
+            },
+            "to": token,
+          },
+        ),
+      );
+    } catch (e) {
+      print("error push notification $e");
+    }
   }
 }

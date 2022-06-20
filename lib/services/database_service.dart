@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
-import 'models/chapter_model.dart';
-import 'models/content_model.dart';
-import 'models/course_model.dart';
+import '../models/chapter_model.dart';
+import '../models/content_model.dart';
+import '../models/course_model.dart';
 
 class DatabaseService {
   static FirebaseFirestore firestore = FirebaseFirestore.instance;

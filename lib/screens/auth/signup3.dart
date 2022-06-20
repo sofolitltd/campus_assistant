@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -333,33 +334,39 @@ class _SignUpScreen3State extends State<SignUpScreen3> {
 
   //
   addUserInformation(User user, String downloadedUrl) async {
-    UserModel userModel = UserModel(
-      university: widget.university,
-      department: widget.department,
-      batch: widget.batch,
-      id: widget.id,
-      session: widget.session,
-      name: widget.name,
-      email: user.email!,
-      phone: widget.phone,
-      blood: widget.bloodGroup,
-      hall: widget.selectedHall,
-      status: 'Basic',
-      imageUrl: downloadedUrl,
-      role: {
-        'admin': false,
-        'cr': false,
+    await FirebaseMessaging.instance.getToken().then(
+      (token) async {
+        //
+        UserModel userModel = UserModel(
+          university: widget.university,
+          department: widget.department,
+          batch: widget.batch,
+          id: widget.id,
+          session: widget.session,
+          name: widget.name,
+          email: user.email!,
+          phone: widget.phone,
+          blood: widget.bloodGroup,
+          hall: widget.selectedHall,
+          status: 'Basic',
+          imageUrl: downloadedUrl,
+          role: {
+            'admin': false,
+            'cr': false,
+          },
+          uid: user.uid,
+          deviceToken: token!,
+        );
+
+        //
+        await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(user.uid)
+            .set(userModel.toJson());
       },
     );
 
     //
-    await FirebaseFirestore.instance
-        .collection('Users')
-        .doc(user.uid)
-        .set(userModel.toJson());
-
-    //
-
     await updateVerificationToken(user, downloadedUrl);
   }
 
@@ -381,7 +388,6 @@ class _SignUpScreen3State extends State<SignUpScreen3> {
       'phone': widget.phone,
       'token': 'USED',
       'imageUrl': downloadUrl,
-      'role': [],
     }).whenComplete(() {
       print('Remove Token successfully');
     });

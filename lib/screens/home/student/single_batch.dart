@@ -38,12 +38,14 @@ class SingleBatchScreen extends StatelessWidget {
                 onPressed: () {
                   //
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AddStudent(
-                                userModel: userModel,
-                                selectedBatch: selectedBatch,
-                              )));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddStudent(
+                        userModel: userModel,
+                        selectedBatch: selectedBatch,
+                      ),
+                    ),
+                  );
                 },
                 child: const Icon(Icons.add),
               ),
@@ -130,9 +132,10 @@ class SingleBatchScreen extends StatelessWidget {
 
                         //
                         return BatchStudentCard(
-                            userModel: userModel,
-                            selectedBatch: selectedBatch,
-                            studentModel: studentModel);
+                          userModel: userModel,
+                          selectedBatch: selectedBatch,
+                          studentModel: studentModel,
+                        );
                       },
                     ),
                   ],

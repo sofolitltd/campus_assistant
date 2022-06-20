@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -18,8 +19,14 @@ import '/screens/home/teacher/teacher_screen.dart';
 import '/screens/profile/profile.dart';
 import '/screens/study/course1_screen.dart';
 import '/utils/theme.dart';
-import 'firebase_options.dart';
+import 'services/firebase_options.dart';
 import 'utils/constants.dart';
+
+// notification
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('Handling a background message ${message.messageId}');
+}
 
 void main() async {
   //
@@ -27,6 +34,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   //status bar transparent
   SystemChrome.setSystemUIOverlayStyle(

@@ -1,9 +1,10 @@
 import 'package:campus_assistant/screens/auth/signup1.dart';
 import 'package:campus_assistant/screens/dashboard/dashboard.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -181,27 +182,24 @@ class _LoginScreenState extends State<LoginScreen> {
       var user = userCredential.user;
 
       if (user != null) {
-        setState(() => _isLoading = false);
-        // Fluttertoast.showToast(msg: 'Login Successful');
         //
-        // Navigator.pushNamedAndRemoveUntil(
-        //   context,
-        //   DashboardScreen.routeName,
-        //       (route) => false,
-        // );
+        await FirebaseMessaging.instance.getToken().then(
+          (token) async {
+            await FirebaseFirestore.instance
+                .collection('Users')
+                .doc(user.uid)
+                .update({'deviceToken': token});
+          },
+        );
 
         //
-        // Obtain shared preferences.
-        final prefs = await SharedPreferences.getInstance();
-
-        prefs.setString('university', 'University of Chittagong');
-        prefs.setString('department', 'Department of Psychology');
-
-        //
+        if (!mounted) return;
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const DashboardScreen()),
             (route) => false);
+
+        setState(() => _isLoading = false);
       } else {
         setState(() => _isLoading = false);
         print('No user found');

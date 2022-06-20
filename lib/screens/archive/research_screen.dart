@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../database_service.dart';
 import '../../models/content_model.dart';
 import '../../models/user_model.dart';
+import '../../services/database_service.dart';
 import '../study/widgets/content_card.dart';
 
 class ResearchScreen extends StatefulWidget {

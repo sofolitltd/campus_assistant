@@ -1,12 +1,14 @@
 import 'package:campus_assistant/models/user_model.dart';
 import 'package:campus_assistant/screens/study/widgets/content_card.dart';
+import 'package:campus_assistant/screens/study/widgets/content_card_web.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '/database_service.dart';
 import '/models/content_model.dart';
 import '/models/course_model.dart';
 import '/screens/study/upload/add_content.dart';
+import '../../services/database_service.dart';
 import '../../utils/constants.dart';
 
 class CourseTypesDetails extends StatelessWidget {
@@ -86,6 +88,15 @@ class CourseTypesDetails extends StatelessWidget {
                     ContentModel.fromJson(data[index]);
 
                 var contentId = data[index].id;
+
+                //
+                if (kIsWeb) {
+                  return ContentCardWeb(
+                    userModel: userModel,
+                    contentId: contentId,
+                    courseContentModel: courseContentModel,
+                  );
+                }
 
                 //
                 return GestureDetector(

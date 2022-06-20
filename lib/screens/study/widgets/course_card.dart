@@ -141,11 +141,13 @@ class CourseCard extends StatelessWidget {
                               courseModel.courseTitle,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                // letterSpacing: 0,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge!
+                                  .copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    // letterSpacing: 0,
+                                  ),
                             ),
                           ),
                         ],
@@ -160,7 +162,7 @@ class CourseCard extends StatelessWidget {
                           courseInfo(
                             context,
                             title: 'Course Code',
-                            value: 'Psy ${courseModel.courseCode}',
+                            value: courseModel.courseCode,
                           ),
                           courseInfo(
                             context,

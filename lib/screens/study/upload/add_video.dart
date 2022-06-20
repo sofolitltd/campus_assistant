@@ -5,9 +5,9 @@ import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:multi_select_flutter/util/multi_select_list_type.dart';
 
 import '/utils/constants.dart';
-import '../../../database_service.dart';
 import '../../../models/course_model.dart';
 import '../../../models/user_model.dart';
+import '../../../services/database_service.dart';
 
 class AddVideo extends StatefulWidget {
   const AddVideo({

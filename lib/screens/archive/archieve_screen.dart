@@ -1,7 +1,11 @@
 import 'package:campus_assistant/screens/archive/library_screen.dart';
 import 'package:campus_assistant/screens/archive/research_screen.dart';
+import 'package:campus_assistant/screens/study/widgets/bookmark_counter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../models/user_model.dart';
 import '../../utils/constants.dart';
 
 class ArchiveScreen extends StatefulWidget {
@@ -12,6 +16,29 @@ class ArchiveScreen extends StatefulWidget {
 }
 
 class _ArchiveScreenState extends State<ArchiveScreen> {
+  UserModel? userModel;
+
+  //
+  getUser() async {
+    var currentUser = FirebaseAuth.instance.currentUser!.uid;
+    await FirebaseFirestore.instance
+        .collection('Users')
+        .doc(currentUser)
+        .get()
+        .then((value) {
+      userModel = UserModel.fromJson(value);
+
+      setState(() {});
+    });
+  }
+
+  //
+  @override
+  void initState() {
+    getUser();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -21,6 +48,12 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
           title: const Text('Archive'),
           bottom:
               TabBar(tabs: kArchive.map((item) => Tab(text: item)).toList()),
+
+          //
+          actions: [
+            if (userModel != null) BookmarkCounter(userModel: userModel!),
+            const SizedBox(width: 8),
+          ],
         ),
         body: const TabBarView(
           children: [

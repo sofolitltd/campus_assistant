@@ -1,8 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '/models/notice_model.dart';
 import '/models/user_model.dart';
-import '/screens/home/notice/notice_by_batch.dart';
+import '/screens/home/notice/notice_group.dart';
 import 'notice_screen.dart';
 
 class NoticeDetailsScreen extends StatelessWidget {
@@ -35,8 +37,22 @@ class NoticeDetailsScreen extends StatelessWidget {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 // image
-                leading: CircleAvatar(
-                  backgroundImage: NetworkImage(noticeModel.uploaderImage),
+                leading: CachedNetworkImage(
+                  imageUrl: noticeModel.uploaderImage,
+                  fadeInDuration: const Duration(milliseconds: 500),
+                  imageBuilder: (context, imageProvider) => CircleAvatar(
+                    backgroundImage: imageProvider,
+                    // radius: 120,
+                  ),
+                  progressIndicatorBuilder: (context, url, downloadProgress) =>
+                      const CircleAvatar(
+                          // radius: 120,
+                          backgroundImage:
+                              AssetImage('assets/images/pp_placeholder.png')),
+                  errorWidget: (context, url, error) => const CircleAvatar(
+                      // radius: 120,
+                      backgroundImage:
+                          AssetImage('assets/images/pp_placeholder.png')),
                 ),
 
                 title: Wrap(
@@ -59,7 +75,7 @@ class NoticeDetailsScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => NoticeByBatch(
+                            builder: (context) => NoticeGroup(
                               userModel: userModel,
                             ),
                           ),
@@ -96,9 +112,135 @@ class NoticeDetailsScreen extends StatelessWidget {
                     ? Theme.of(context).textTheme.headline5
                     : Theme.of(context).textTheme.subtitle1,
               ),
+
+              const SizedBox(height: 16),
+
+              //
+              // const Divider(height: 0),
+              //
+              // //
+              // Row(
+              //   children: [
+              //     Expanded(
+              //       child: TextButton.icon(
+              //         onPressed: () {},
+              //         icon: const Icon(Icons.thumb_up_outlined),
+              //         label: const Text('Like'),
+              //       ),
+              //     ),
+              //
+              //     //
+              //     Expanded(
+              //       child: TextButton.icon(
+              //         onPressed: () {},
+              //         icon: const Icon(Icons.insert_comment_outlined),
+              //         label: const Text('Comment'),
+              //       ),
+              //     ),
+              //
+              //     //
+              //     Expanded(
+              //       child: TextButton.icon(
+              //         onPressed: () {},
+              //         icon: const Icon(Icons.share_outlined),
+              //         label: const Text('Share'),
+              //       ),
+              //     ),
+              //   ],
+              // ),
+
+              const Divider(height: 0),
+              const SizedBox(height: 8),
+
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              SeenListScreen(seenList: noticeModel.seen)));
+                },
+                child: Expanded(
+                  child: Text(
+                    'Seen by ${noticeModel.seen.length}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+
+              //
+              const SizedBox(height: 8),
+              const Divider(height: 0),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+//
+class SeenListScreen extends StatelessWidget {
+  final List seenList;
+  const SeenListScreen({Key? key, required this.seenList}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('People who reached'),
+      ),
+
+      //
+      body: ListView.builder(
+        itemCount: seenList.length,
+        itemBuilder: (context, index) {
+          return StreamBuilder<DocumentSnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('Users')
+                .doc(seenList[index])
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const Center(child: Text('Something wrong'));
+              }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              //
+              var data = snapshot.data!;
+              UserModel userModel = UserModel.fromJson(data);
+
+              return ListTile(
+                // image
+                leading: CachedNetworkImage(
+                  imageUrl: userModel.imageUrl,
+                  fadeInDuration: const Duration(milliseconds: 500),
+                  imageBuilder: (context, imageProvider) => CircleAvatar(
+                    backgroundImage: imageProvider,
+                    // radius: 120,
+                  ),
+                  progressIndicatorBuilder: (context, url, downloadProgress) =>
+                      const CircleAvatar(
+                          // radius: 120,
+                          backgroundImage:
+                              AssetImage('assets/images/pp_placeholder.png')),
+                  errorWidget: (context, url, error) => const CircleAvatar(
+                      // radius: 120,
+                      backgroundImage:
+                          AssetImage('assets/images/pp_placeholder.png')),
+                ),
+
+                //
+                title: Text(userModel.name),
+                // subtitle: Text('Id: ${userModel.id}'),
+              );
+            },
+          );
+        },
       ),
     );
   }
